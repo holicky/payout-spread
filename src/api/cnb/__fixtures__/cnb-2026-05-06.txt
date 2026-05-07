@@ -1,0 +1,32 @@
+06 May 2026 #86
+Country|Currency|Amount|Code|Rate
+Australia|dollar|1|AUD|14.989
+Brazil|real|1|BRL|4.210
+Canada|dollar|1|CAD|15.216
+China|renminbi|1|CNY|3.039
+Denmark|krone|1|DKK|3.257
+EMU|euro|1|EUR|24.340
+Hongkong|dollar|1|HKD|2.642
+Hungary|forint|100|HUF|6.774
+Iceland|krona|100|ISK|16.950
+IMF|SDR|1|XDR|28.373
+India|rupee|100|INR|21.878
+Indonesia|rupiah|1000|IDR|1.191
+Israel|new shekel|1|ILS|7.123
+Japan|yen|100|JPY|13.249
+Malaysia|ringgit|1|MYR|5.274
+Mexico|peso|1|MXN|1.198
+New Zealand|dollar|1|NZD|12.345
+Norway|krone|1|NOK|2.233
+Philippines|peso|100|PHP|34.064
+Poland|zloty|1|PLN|5.749
+Romania|leu|1|RON|4.628
+Singapore|dollar|1|SGD|16.317
+South Africa|rand|1|ZAR|1.261
+South Korea|won|100|KRW|1.429
+Sweden|krona|1|SEK|2.247
+Switzerland|franc|1|CHF|26.566
+Thailand|baht|100|THB|64.285
+Turkey|lira|100|TRY|45.778
+United Kingdom|pound|1|GBP|28.183
+USA|dollar|1|USD|20.700
