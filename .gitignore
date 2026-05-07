@@ -43,3 +43,8 @@ yarn-error.*
 
 # personal scratch
 .claude.md
+
+# assistant/editor local files
+.claude/
+AGENTS.md
+CLAUDE.md
