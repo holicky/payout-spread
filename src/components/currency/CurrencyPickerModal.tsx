@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons'
 import { useMemo, useRef, useState } from 'react'
 import { Modal, SectionList } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import styled from 'styled-components/native'
 
 import type { CurrencyRate } from '../../api/cnb/types'
@@ -58,92 +58,96 @@ export function CurrencyPickerModal({
       onRequestClose={onClose}
       onDismiss={() => setQuery('')}
     >
-      <Safe edges={['top', 'bottom']}>
-        <Header>
-          <HapticPressable
-            testID={TEST_IDS.picker.close}
-            onPress={onClose}
-            hitSlop={12}
-            accessibilityLabel="Close"
-            haptic="light"
-          >
-            <CloseIcon>✕</CloseIcon>
-          </HapticPressable>
-          <Title>Select currency</Title>
-          <SearchWrap>
-            <Feather name="search" size={20} color={colors.textSubtle} />
-            <SearchInput
-              testID={TEST_IDS.picker.search}
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search"
-              placeholderTextColor={colors.textSubtle}
-              autoCorrect={false}
-              autoCapitalize="none"
-              autoFocus
-              returnKeyType="search"
-              accessibilityLabel="Search currencies"
-            />
-          </SearchWrap>
-        </Header>
-
-        <Body>
-          <SectionList
-            testID={TEST_IDS.picker.list}
-            ref={listRef}
-            sections={sections}
-            keyExtractor={r => r.code}
-            initialNumToRender={16}
-            maxToRenderPerBatch={16}
-            windowSize={7}
-            stickySectionHeadersEnabled={false}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={<Empty>No matches</Empty>}
-            renderSectionHeader={({ section }) => (
-              <SectionHeader>{section.letter}</SectionHeader>
-            )}
-            renderItem={({ item }) => (
-              <Row
-                testID={TEST_IDS.picker.row(item.code)}
-                onPress={() => onPick(item.code)}
-                accessibilityState={{ selected: item.code === selected }}
-                accessibilityLabel={`${nameFor(item.code, item.currencyName)}, ${item.code}${
-                  item.code === selected ? ', selected' : ''
-                }`}
+      <SafeAreaProvider>
+        <Safe edges={['top', 'bottom']}>
+          <Header>
+            <TopBar>
+              <HapticPressable
+                testID={TEST_IDS.picker.close}
+                onPress={onClose}
+                hitSlop={12}
+                accessibilityLabel="Close"
+                haptic="light"
               >
-                <CurrencyFlag code={item.code} size={36} />
-                <RowText>
-                  {nameFor(item.code, item.currencyName)}
-                  <Dash>{'  -  '}</Dash>
-                  <RowCode>{item.code}</RowCode>
-                </RowText>
-                {item.code === selected && <Check>✓</Check>}
-              </Row>
-            )}
-          />
+                <CloseIcon>✕</CloseIcon>
+              </HapticPressable>
+            </TopBar>
+            <Title>Select currency</Title>
+            <SearchWrap>
+              <Feather name="search" size={20} color={colors.textSubtle} />
+              <SearchInput
+                testID={TEST_IDS.picker.search}
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search"
+                placeholderTextColor={colors.textSubtle}
+                autoCorrect={false}
+                autoCapitalize="none"
+                autoFocus
+                returnKeyType="search"
+                accessibilityLabel="Search currencies"
+              />
+            </SearchWrap>
+          </Header>
 
-          <Index>
-            {ALPHABET.map(letter => {
-              const enabled = lettersWithData.has(letter)
-              return (
-                <HapticPressable
-                  key={letter}
-                  disabled={!enabled}
-                  testID={TEST_IDS.picker.indexLetter(letter)}
-                  onPress={() => jumpTo(letter)}
-                  hitSlop={4}
-                  haptic="none"
-                  accessibilityState={{ disabled: !enabled }}
-                  accessibilityLabel={`Jump to ${letter}`}
+          <Body>
+            <SectionList
+              testID={TEST_IDS.picker.list}
+              ref={listRef}
+              sections={sections}
+              keyExtractor={r => r.code}
+              initialNumToRender={16}
+              maxToRenderPerBatch={16}
+              windowSize={7}
+              stickySectionHeadersEnabled={false}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={<Empty>No matches</Empty>}
+              renderSectionHeader={({ section }) => (
+                <SectionHeader>{section.letter}</SectionHeader>
+              )}
+              renderItem={({ item }) => (
+                <Row
+                  testID={TEST_IDS.picker.row(item.code)}
+                  onPress={() => onPick(item.code)}
+                  accessibilityState={{ selected: item.code === selected }}
+                  accessibilityLabel={`${nameFor(item.code, item.currencyName)}, ${item.code}${
+                    item.code === selected ? ', selected' : ''
+                  }`}
                 >
-                  <IndexLetter $enabled={enabled}>{letter}</IndexLetter>
-                </HapticPressable>
-              )
-            })}
-          </Index>
-        </Body>
-      </Safe>
+                  <CurrencyFlag code={item.code} size={36} />
+                  <RowText>
+                    {nameFor(item.code, item.currencyName)}
+                    <Dash>{'  -  '}</Dash>
+                    <RowCode>{item.code}</RowCode>
+                  </RowText>
+                  {item.code === selected && <Check>✓</Check>}
+                </Row>
+              )}
+            />
+
+            <Index>
+              {ALPHABET.map(letter => {
+                const enabled = lettersWithData.has(letter)
+                return (
+                  <HapticPressable
+                    key={letter}
+                    disabled={!enabled}
+                    testID={TEST_IDS.picker.indexLetter(letter)}
+                    onPress={() => jumpTo(letter)}
+                    hitSlop={4}
+                    haptic="none"
+                    accessibilityState={{ disabled: !enabled }}
+                    accessibilityLabel={`Jump to ${letter}`}
+                  >
+                    <IndexLetter $enabled={enabled}>{letter}</IndexLetter>
+                  </HapticPressable>
+                )
+              })}
+            </Index>
+          </Body>
+        </Safe>
+      </SafeAreaProvider>
     </Modal>
   )
 }
@@ -155,6 +159,11 @@ const Safe = styled(SafeAreaView)`
 
 const Header = styled.View`
   padding: ${spacing.sm}px ${spacing.lg}px ${spacing.md}px;
+`
+
+const TopBar = styled.View`
+  flex-direction: row;
+  justify-content: flex-end;
 `
 
 const CloseIcon = styled.Text`
