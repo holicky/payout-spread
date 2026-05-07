@@ -4,6 +4,8 @@ A small React Native app that turns the Czech National Bank's daily fixings into
 
 Built with Expo SDK 54, React Native 0.81 and React 19.
 
+> **For reviewers:** see [SUBMISSION.md](./SUBMISSION.md) for the requirements checklist, decision log, and notes on how I approached the brief.
+
 ## Screenshots
 
 **Today**
@@ -97,3 +99,5 @@ React Navigation flows are exercised manually rather than under Jest.
 
 - The Converter opens in the assignment's requested CZK → foreign flow by default (`CZK → USD`) and supports bidirectional conversion thereafter.
 - Conversion Timing is the bonus screen. It uses an aggregate historical CNB query and visualises CZK yield rather than the raw rate, since "what would I have actually received" is the question the screen exists to answer.
+
+For the full requirements checklist, decision log, scope caveats, and instructions for generating native projects, see [SUBMISSION.md](./SUBMISSION.md).
