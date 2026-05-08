@@ -3,14 +3,14 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { focusManager, QueryClient } from '@tanstack/react-query'
 import { AppState } from 'react-native'
 
-import { shouldRetryCnbQuery } from './cnb/queries'
+import { shouldRetryCNBQuery } from './cnb/queries'
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: shouldRetryCnbQuery,
+      retry: shouldRetryCNBQuery,
       gcTime: ONE_DAY_MS,
     },
   },

@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { FlatList, RefreshControl } from 'react-native'
 import styled from 'styled-components/native'
 
-import type { CnbDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing } from '../api/cnb/types'
 import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
-import { useRatesWithCzk } from '../hooks/useRatesWithCzk'
+import { useRatesWithCZK } from '../hooks/useRatesWithCZK'
 import { selectRate } from '../lib/select-rate'
 import { TEST_IDS } from '../lib/testIds'
 import { useConversionStore } from '../state/conversion'
@@ -49,7 +49,7 @@ function TodayContent({
   pickerOpen,
   setPickerOpen,
 }: {
-  data: CnbDailyFixing
+  data: CNBDailyFixing
   dataUpdatedAt: number
   isFetching: boolean
   isRefetching: boolean
@@ -59,8 +59,8 @@ function TodayContent({
   pickerOpen: boolean
   setPickerOpen: (open: boolean) => void
 }) {
-  const ratesWithCzk = useRatesWithCzk(data)
-  const reference = selectRate(ratesWithCzk, sourceCode, 'CZK')
+  const ratesWithCZK = useRatesWithCZK(data)
+  const reference = selectRate(ratesWithCZK, sourceCode, 'CZK')
 
   if (!reference) return null
 
@@ -105,7 +105,7 @@ function TodayContent({
       {pickerOpen ? (
         <CurrencyPickerModal
           open
-          rates={ratesWithCzk}
+          rates={ratesWithCZK}
           selected={reference.code}
           onClose={() => setPickerOpen(false)}
           onPick={code => {

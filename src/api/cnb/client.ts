@@ -1,5 +1,5 @@
-import { parseCnbDaily } from './parser'
-import type { CnbDailyFixing } from './types'
+import { parseCNBDaily } from './parser'
+import type { CNBDailyFixing } from './types'
 
 const CNB_DAILY_URL =
   'https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/daily.txt'
@@ -9,34 +9,34 @@ const MAX_PARALLEL_CNB_REQUESTS = 6
 let activeRequests = 0
 const requestQueue: Array<() => void> = []
 
-export class CnbFetchError extends Error {
+export class CNBFetchError extends Error {
   constructor(
     message: string,
     readonly status?: number,
   ) {
     super(`CNB fetch error: ${message}`)
-    this.name = 'CnbFetchError'
+    this.name = 'CNBFetchError'
   }
 }
 
 export async function fetchDailyRatesAt(
   date: Date,
   signal?: AbortSignal,
-): Promise<CnbDailyFixing> {
-  const url = `${CNB_DAILY_URL}?date=${formatCnbDate(date)}`
+): Promise<CNBDailyFixing> {
+  const url = `${CNB_DAILY_URL}?date=${formatCNBDate(date)}`
   return fetchAt(url, signal)
 }
 
 async function fetchAt(
   url: string,
   signal?: AbortSignal,
-): Promise<CnbDailyFixing> {
-  const res = await withCnbRequestSlot(() => fetchWithTimeout(url, signal))
+): Promise<CNBDailyFixing> {
+  const res = await withCNBRequestSlot(() => fetchWithTimeout(url, signal))
   if (!res.ok) {
-    throw new CnbFetchError(`HTTP ${res.status}`, res.status)
+    throw new CNBFetchError(`HTTP ${res.status}`, res.status)
   }
   const body = await res.text()
-  return parseCnbDaily(body)
+  return parseCNBDaily(body)
 }
 
 /**
@@ -47,7 +47,7 @@ export function calendarDaysFor(businessDays: number): number {
   return Math.ceil(businessDays * 1.6) + 3
 }
 
-export function formatCnbDate(d: Date): string {
+export function formatCNBDate(d: Date): string {
   const dd = String(d.getDate()).padStart(2, '0')
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   const yyyy = d.getFullYear()
@@ -56,7 +56,7 @@ export function formatCnbDate(d: Date): string {
 
 // Soft semaphore — caps concurrent in-flight requests so we don't hammer the
 // CNB host. FIFO is best-effort; not worth strict ordering at this volume.
-async function withCnbRequestSlot<T>(run: () => Promise<T>): Promise<T> {
+async function withCNBRequestSlot<T>(run: () => Promise<T>): Promise<T> {
   if (activeRequests >= MAX_PARALLEL_CNB_REQUESTS) {
     await new Promise<void>(resolve => requestQueue.push(resolve))
   }
@@ -85,7 +85,7 @@ async function fetchWithTimeout(
     return await fetch(url, { signal: controller.signal })
   } catch (error) {
     if (controller.signal.aborted && !signal?.aborted) {
-      throw new CnbFetchError('request timed out')
+      throw new CNBFetchError('request timed out')
     }
     throw error
   } finally {

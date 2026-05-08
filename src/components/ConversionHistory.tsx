@@ -8,7 +8,7 @@ import { buildSeries } from '../lib/series'
 import { TEST_IDS } from '../lib/testIds'
 import { useConversionStore, useEvaluatedAmount } from '../state/conversion'
 import { colors, radii, spacing } from '../theme'
-import { CzkYieldChart } from './CzkYieldChart'
+import { YieldChart } from './YieldChart'
 import { PeriodSelector } from './PeriodSelector'
 import { Skeleton } from './Skeleton'
 import { StatsCard, type StatItem } from './StatsCard'
@@ -69,7 +69,7 @@ export function ConversionHistory() {
   return (
     <Wrap testID={TEST_IDS.converter.history}>
       <Spacer />
-      <CzkYieldChart
+      <YieldChart
         data={series}
         width={width}
         unit={targetCode}

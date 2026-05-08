@@ -3,7 +3,7 @@ import {
   convertCurrency,
   CZK_RATE,
   czkToForeign,
-  foreignToCzk,
+  foreignToCZK,
 } from './convert'
 
 const usd: CurrencyRate = {
@@ -77,18 +77,18 @@ describe('convertCurrency', () => {
   })
 })
 
-describe('foreignToCzk', () => {
+describe('foreignToCZK', () => {
   it('is the inverse of czkToForeign', () => {
     const original = 1234.56
-    const round = foreignToCzk(czkToForeign(original, jpy), jpy)
+    const round = foreignToCZK(czkToForeign(original, jpy), jpy)
     expect(round).toBeCloseTo(original, 6)
   })
 
   it('converts 100 JPY to its CZK rate', () => {
-    expect(foreignToCzk(100, jpy)).toBeCloseTo(15.123, 6)
+    expect(foreignToCZK(100, jpy)).toBeCloseTo(15.123, 6)
   })
 
   it('converts 1000 IDR to its CZK rate', () => {
-    expect(foreignToCzk(1000, idr)).toBeCloseTo(1.4, 6)
+    expect(foreignToCZK(1000, idr)).toBeCloseTo(1.4, 6)
   })
 })

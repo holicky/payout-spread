@@ -3,7 +3,7 @@ import { useState } from 'react'
 import styled from 'styled-components/native'
 
 import { useDailyRates } from '../api/cnb/useDailyRates'
-import { useRatesWithCzk } from '../hooks/useRatesWithCzk'
+import { useRatesWithCZK } from '../hooks/useRatesWithCZK'
 import { convertCurrency } from '../lib/convert'
 import { selectRate } from '../lib/select-rate'
 import { formatNumber } from '../lib/format'
@@ -32,9 +32,9 @@ export function ConversionForm() {
   const [pickerSide, setPickerSide] = useState<PickerSide>(null)
   const [keypadOpen, setKeypadOpen] = useState(false)
 
-  const ratesWithCzk = useRatesWithCzk(data)
-  const sourceRate = selectRate(ratesWithCzk, sourceCode, 'CZK')
-  const targetRate = selectRate(ratesWithCzk, targetCode, 'USD')
+  const ratesWithCZK = useRatesWithCZK(data)
+  const sourceRate = selectRate(ratesWithCZK, sourceCode, 'CZK')
+  const targetRate = selectRate(ratesWithCZK, targetCode, 'USD')
 
   if (!sourceRate || !targetRate) return null
 
@@ -82,7 +82,7 @@ export function ConversionForm() {
       {pickerSide ? (
         <CurrencyPickerModal
           open
-          rates={ratesWithCzk}
+          rates={ratesWithCZK}
           selected={pickerSide === 'target' ? targetCode : sourceCode}
           onClose={() => setPickerSide(null)}
           onPick={code => {

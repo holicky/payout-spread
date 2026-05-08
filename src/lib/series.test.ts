@@ -1,4 +1,4 @@
-import type { CnbDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing } from '../api/cnb/types'
 import { buildSeries } from './series'
 
 const usd = {
@@ -17,7 +17,7 @@ const eur = {
   rate: 25.0,
 }
 
-const fixings: CnbDailyFixing[] = [
+const fixings: CNBDailyFixing[] = [
   { date: '2026-05-05', sequenceNumber: 85, rates: [usd, eur] },
   {
     date: '2026-05-06',

@@ -1,35 +1,35 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import { CnbFetchError, fetchDailyRatesAt, formatCnbDate } from './client'
-import { CnbParseError } from './parser'
+import { CNBFetchError, fetchDailyRatesAt, formatCNBDate } from './client'
+import { CNBParseError } from './parser'
 
 const CNB_PUBLISH_HOUR = 14
 const CNB_PUBLISH_MINUTE = 35
 
 export const dailyAtQueryKey = (date: Date) =>
-  ['cnb', 'dailyAt', formatCnbDate(date)] as const
+  ['cnb', 'dailyAt', formatCNBDate(date)] as const
 
 export function dailyAtQueryOptions(date: Date) {
   return queryOptions({
     queryKey: dailyAtQueryKey(date),
     queryFn: ({ signal }) => fetchDailyRatesAt(date, signal),
-    staleTime: isToday(date) ? msUntilNextCnbPublish() : Infinity,
+    staleTime: isToday(date) ? msUntilNextCNBPublish() : Infinity,
     gcTime: 24 * 60 * 60 * 1000,
   })
 }
 
-export function shouldRetryCnbQuery(
+export function shouldRetryCNBQuery(
   failureCount: number,
   error: unknown,
 ): boolean {
-  if (error instanceof CnbParseError) return false
-  if (error instanceof CnbFetchError && error.status && error.status < 500) {
+  if (error instanceof CNBParseError) return false
+  if (error instanceof CNBFetchError && error.status && error.status < 500) {
     return false
   }
   return failureCount < 2
 }
 
-export function recentCnbDates(calendarDays: number): Date[] {
+export function recentCNBDates(calendarDays: number): Date[] {
   const today = new Date()
   return Array.from({ length: calendarDays }, (_, index) => {
     const date = new Date(today)
@@ -38,7 +38,7 @@ export function recentCnbDates(calendarDays: number): Date[] {
   })
 }
 
-function msUntilNextCnbPublish(now = new Date()): number {
+function msUntilNextCNBPublish(now = new Date()): number {
   let next = setPragueTime(now, CNB_PUBLISH_HOUR, CNB_PUBLISH_MINUTE)
 
   while (next.getTime() <= now.getTime() || isPragueWeekend(next)) {
@@ -54,7 +54,7 @@ function msUntilNextCnbPublish(now = new Date()): number {
 }
 
 function isToday(date: Date): boolean {
-  return formatCnbDate(date) === formatCnbDate(new Date())
+  return formatCNBDate(date) === formatCNBDate(new Date())
 }
 
 function pragueOffsetMinutes(at: Date): number {

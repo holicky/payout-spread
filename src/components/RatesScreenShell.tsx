@@ -2,13 +2,13 @@ import type { ReactNode } from 'react'
 import { ActivityIndicator } from 'react-native'
 
 import { useDailyRates } from '../api/cnb/useDailyRates'
-import type { CnbDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing } from '../api/cnb/types'
 import { Centered } from './Centered'
 import { ErrorState } from './ErrorState'
 import { Screen } from './Screen'
 
 type RatesScreenState = {
-  data: CnbDailyFixing
+  data: CNBDailyFixing
   dataUpdatedAt: number
   isFetching: boolean
   isRefetching: boolean

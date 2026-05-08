@@ -2,16 +2,16 @@ import { useCallback, useMemo } from 'react'
 import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 
 import { calendarDaysFor } from './client'
-import { dailyAtQueryOptions, recentCnbDates } from './queries'
-import type { CnbDailyFixing } from './types'
+import { dailyAtQueryOptions, recentCNBDates } from './queries'
+import type { CNBDailyFixing } from './types'
 
 export function useRecentRates(businessDays: number = 30) {
   const calendarDays = calendarDaysFor(businessDays)
-  const dates = useMemo(() => recentCnbDates(calendarDays), [calendarDays])
+  const dates = useMemo(() => recentCNBDates(calendarDays), [calendarDays])
 
   const combine = useCallback(
-    (results: UseQueryResult<CnbDailyFixing>[]) => {
-      const byDate = new Map<string, CnbDailyFixing>()
+    (results: UseQueryResult<CNBDailyFixing>[]) => {
+      const byDate = new Map<string, CNBDailyFixing>()
       for (const result of results) {
         if (result.data) byDate.set(result.data.date, result.data)
       }

@@ -1,4 +1,4 @@
-import type { CnbDailyFixing, CurrencyRate } from '../api/cnb/types'
+import type { CNBDailyFixing, CurrencyRate } from '../api/cnb/types'
 import { bestPartOfMonth, bestWeekday } from './insights'
 
 const usd = (rate: number): CurrencyRate => ({
@@ -9,7 +9,7 @@ const usd = (rate: number): CurrencyRate => ({
   rate,
 })
 
-const fixing = (date: string, rate: number): CnbDailyFixing => ({
+const fixing = (date: string, rate: number): CNBDailyFixing => ({
   date,
   sequenceNumber: 1,
   rates: [usd(rate)],
@@ -34,7 +34,7 @@ describe('bestWeekday', () => {
   })
 
   it('picks the weekday with the highest USD->CZK ratio', () => {
-    const fixings: CnbDailyFixing[] = [
+    const fixings: CNBDailyFixing[] = [
       fixing('2026-05-04', 25), // Mon
       fixing('2026-05-11', 25), // Mon
       fixing('2026-05-05', 20), // Tue
@@ -51,7 +51,7 @@ describe('bestWeekday', () => {
 
   it('picks the weekday with the highest CZK->USD ratio (lowest USD price)', () => {
     // CZK->USD ratio = 1/USDrate. Lowest USD rate = highest CZK->USD ratio.
-    const fixings: CnbDailyFixing[] = [
+    const fixings: CNBDailyFixing[] = [
       fixing('2026-05-04', 25), // Mon - high USD rate -> low CZK->USD
       fixing('2026-05-05', 20), // Tue - low USD rate -> high CZK->USD
     ]
@@ -60,7 +60,7 @@ describe('bestWeekday', () => {
   })
 
   it('reports advantage vs the overall mean', () => {
-    const fixings: CnbDailyFixing[] = [
+    const fixings: CNBDailyFixing[] = [
       fixing('2026-05-04', 22), // Mon
       fixing('2026-05-05', 18), // Tue
     ]
@@ -70,7 +70,7 @@ describe('bestWeekday', () => {
   })
 
   it('grades confidence by sample size', () => {
-    const lowFixings: CnbDailyFixing[] = [
+    const lowFixings: CNBDailyFixing[] = [
       fixing('2026-05-04', 22),
       fixing('2026-05-05', 20),
     ]
@@ -100,7 +100,7 @@ describe('bestWeekday', () => {
 
 describe('bestPartOfMonth', () => {
   it('buckets dates into early / mid / late', () => {
-    const fixings: CnbDailyFixing[] = [
+    const fixings: CNBDailyFixing[] = [
       fixing('2026-05-03', 20), // early
       fixing('2026-05-09', 20), // early
       fixing('2026-05-15', 22), // mid

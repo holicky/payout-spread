@@ -1,4 +1,4 @@
-import type { CnbDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing } from '../api/cnb/types'
 import { convertCurrency, findRate } from './convert'
 import { formatLongDate } from './format'
 
@@ -8,7 +8,7 @@ export type ChartPoint = {
 }
 
 export function buildSeries(
-  fixings: CnbDailyFixing[],
+  fixings: CNBDailyFixing[],
   sourceCode: string,
   targetCode: string,
   amount: number | null,

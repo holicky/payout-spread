@@ -25,7 +25,7 @@ export function czkToForeign(czk: number, rate: CurrencyRate): number {
 /**
  * Inverse: how many CZK does `foreign` units of the foreign currency cost.
  */
-export function foreignToCzk(foreign: number, rate: CurrencyRate): number {
+export function foreignToCZK(foreign: number, rate: CurrencyRate): number {
   return (foreign * rate.rate) / rate.amount
 }
 
@@ -39,8 +39,8 @@ export function convertCurrency(
   target: CurrencyRate,
 ): number {
   if (source.code === target.code) return amount
-  const inCzk = foreignToCzk(amount, source)
-  return czkToForeign(inCzk, target)
+  const inCZK = foreignToCZK(amount, source)
+  return czkToForeign(inCZK, target)
 }
 
 /**

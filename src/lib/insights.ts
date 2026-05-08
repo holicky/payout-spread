@@ -1,4 +1,4 @@
-import type { CnbDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing } from '../api/cnb/types'
 import { convertCurrency, findRate } from './convert'
 
 export type Confidence = 'low' | 'medium' | 'high'
@@ -40,7 +40,7 @@ const PART_LABELS: Record<MonthPartInsight['part'], string> = {
 }
 
 export function bestWeekday(
-  fixings: CnbDailyFixing[],
+  fixings: CNBDailyFixing[],
   sourceCode: string,
   targetCode: string,
 ): WeekdayInsight | null {
@@ -55,7 +55,7 @@ export function bestWeekday(
 }
 
 export function bestPartOfMonth(
-  fixings: CnbDailyFixing[],
+  fixings: CNBDailyFixing[],
   sourceCode: string,
   targetCode: string,
 ): MonthPartInsight | null {
@@ -70,10 +70,10 @@ export function bestPartOfMonth(
 }
 
 function bucket<K>(
-  fixings: CnbDailyFixing[],
+  fixings: CNBDailyFixing[],
   sourceCode: string,
   targetCode: string,
-  keyFn: (fixing: CnbDailyFixing) => K,
+  keyFn: (fixing: CNBDailyFixing) => K,
 ): Map<K, number[]> {
   const out = new Map<K, number[]>()
   for (const fixing of fixings) {

@@ -1,9 +1,9 @@
-import type { CnbDailyFixing, CurrencyRate } from './types'
+import type { CNBDailyFixing, CurrencyRate } from './types'
 
-export class CnbParseError extends Error {
+export class CNBParseError extends Error {
   constructor(message: string) {
     super(`CNB parse error: ${message}`)
-    this.name = 'CnbParseError'
+    this.name = 'CNBParseError'
   }
 }
 
@@ -33,30 +33,30 @@ const MONTH_INDEX = new Map<string, number>(
   ]),
 )
 
-export function parseCnbDaily(input: string): CnbDailyFixing {
+export function parseCNBDaily(input: string): CNBDailyFixing {
   const lines = input
     .split('\n')
     .map(line => line.trim())
     .filter(Boolean)
 
   if (lines.length < 2) {
-    throw new CnbParseError('input too short to contain header + columns')
+    throw new CNBParseError('input too short to contain header + columns')
   }
 
   const headerMatch = lines[0].match(HEADER_RE)
   if (!headerMatch) {
-    throw new CnbParseError(`malformed date header: "${lines[0]}"`)
+    throw new CNBParseError(`malformed date header: "${lines[0]}"`)
   }
   const [, day, monthName, year, seq] = headerMatch
   const monthIndex = MONTH_INDEX.get(monthName)
   if (monthIndex === undefined) {
-    throw new CnbParseError(`unknown month name: "${monthName}"`)
+    throw new CNBParseError(`unknown month name: "${monthName}"`)
   }
   const date = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${day.padStart(2, '0')}`
   const sequenceNumber = Number(seq)
 
   if (lines[1] !== COLUMN_HEADER) {
-    throw new CnbParseError(`unexpected column header: "${lines[1]}"`)
+    throw new CNBParseError(`unexpected column header: "${lines[1]}"`)
   }
 
   const rates = lines
@@ -69,7 +69,7 @@ export function parseCnbDaily(input: string): CnbDailyFixing {
 function parseRateRow(line: string, rowNumber: number): CurrencyRate {
   const cols = line.split('|')
   if (cols.length !== 5) {
-    throw new CnbParseError(
+    throw new CNBParseError(
       `row ${rowNumber}: expected 5 columns, got ${cols.length}`,
     )
   }
@@ -77,13 +77,13 @@ function parseRateRow(line: string, rowNumber: number): CurrencyRate {
   const amount = Number(amountStr)
   const rate = Number(rateStr)
   if (!Number.isFinite(amount) || amount <= 0) {
-    throw new CnbParseError(`row ${rowNumber}: invalid amount "${amountStr}"`)
+    throw new CNBParseError(`row ${rowNumber}: invalid amount "${amountStr}"`)
   }
   if (!Number.isFinite(rate) || rate <= 0) {
-    throw new CnbParseError(`row ${rowNumber}: invalid rate "${rateStr}"`)
+    throw new CNBParseError(`row ${rowNumber}: invalid rate "${rateStr}"`)
   }
   if (!/^[A-Z]{3}$/.test(code)) {
-    throw new CnbParseError(`row ${rowNumber}: invalid currency code "${code}"`)
+    throw new CNBParseError(`row ${rowNumber}: invalid currency code "${code}"`)
   }
   return { country, currencyName, amount, code, rate }
 }

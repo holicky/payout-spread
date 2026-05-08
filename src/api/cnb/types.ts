@@ -8,7 +8,7 @@ export type CurrencyRate = {
   rate: number
 }
 
-export type CnbDailyFixing = {
+export type CNBDailyFixing = {
   /** ISO 8601 date (YYYY-MM-DD) of the fixing */
   date: string
   /** sequence number CNB assigns to each daily fixing within a year */

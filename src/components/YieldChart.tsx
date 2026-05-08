@@ -23,7 +23,7 @@ type PointerLabelItem = { value?: number; date?: string; label?: string }
 const SECTIONS = 5
 const HEADER_HEIGHT = 56
 
-export const CzkYieldChart = memo(function CzkYieldChart({
+export const YieldChart = memo(function YieldChart({
   data,
   width,
   height = 180,
