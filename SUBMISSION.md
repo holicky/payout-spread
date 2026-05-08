@@ -89,7 +89,6 @@ Unit tests cover parsing, conversion math, calculator state, chart series, insig
 - **No CI workflow checked in.** `yarn typecheck` and `yarn test` are the local gates; wiring up GitHub Actions felt like ceremony for a single-author repo.
 - **Phone-only verification.** `app.json` declares `supportsTablet: true`, but layout was only tested on phone form-factors (iPhone simulator + Android emulator at standard resolutions). Tablet/foldable layouts haven't been exercised and may need spacing tweaks.
 - **Stock Expo graphics.** The icon, splash, adaptive icon, and favicon under `assets/` are the default Expo placeholders. Designing custom branding (logo, icon set, splash artwork, screenshot frames) is a design exercise outside the scope of this brief.
-- **Aggregate vs per-day cache.** The Converter (22-day window) uses `useQueries` over individual `['cnb','dailyAt',date]` keys, while Timing's 90-day insights use a single `['cnb','recentAggregate',90]` key with its own bulk fetcher. The two paths don't share cache, so opening Timing after Converter still re-fetches days that are already cached individually. The clean fix is to fold both into one `useQueries` + `combine` shape; left as-is for this submission to keep the Timing screen's loading state simple, but flagging it as the obvious next refactor.
 
 ## Native projects (iOS / Android folders)
 

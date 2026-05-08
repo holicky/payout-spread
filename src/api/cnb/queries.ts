@@ -1,11 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import {
-  CnbFetchError,
-  fetchDailyRatesAt,
-  fetchRecentDailyRates,
-  formatCnbDate,
-} from './client'
+import { CnbFetchError, fetchDailyRatesAt, formatCnbDate } from './client'
 import { CnbParseError } from './parser'
 
 const CNB_PUBLISH_HOUR = 14
@@ -19,15 +14,6 @@ export function dailyAtQueryOptions(date: Date) {
     queryKey: dailyAtQueryKey(date),
     queryFn: ({ signal }) => fetchDailyRatesAt(date, signal),
     staleTime: isToday(date) ? msUntilNextCnbPublish() : Infinity,
-    gcTime: 24 * 60 * 60 * 1000,
-  })
-}
-
-export function aggregateRecentRatesQueryOptions(businessDays: number) {
-  return queryOptions({
-    queryKey: ['cnb', 'recentAggregate', businessDays] as const,
-    queryFn: ({ signal }) => fetchRecentDailyRates(businessDays, signal),
-    staleTime: msUntilNextCnbPublish(),
     gcTime: 24 * 60 * 60 * 1000,
   })
 }

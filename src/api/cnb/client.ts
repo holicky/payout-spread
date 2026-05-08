@@ -27,42 +27,6 @@ export async function fetchDailyRatesAt(
   return fetchAt(url, signal)
 }
 
-export async function fetchRecentDailyRates(
-  businessDays: number,
-  signal?: AbortSignal,
-): Promise<CnbDailyFixing[]> {
-  const calendarDays = calendarDaysFor(businessDays)
-  const today = new Date()
-  const dates = Array.from({ length: calendarDays }, (_, index) => {
-    const date = new Date(today)
-    date.setDate(date.getDate() - index)
-    return date
-  })
-
-  const settled = await Promise.allSettled(
-    dates.map(date => fetchDailyRatesAt(date, signal)),
-  )
-  const fixings = settled.flatMap(result =>
-    result.status === 'fulfilled' ? [result.value] : [],
-  )
-
-  if (fixings.length === 0) {
-    const firstError = settled.find(
-      (result): result is PromiseRejectedResult => result.status === 'rejected',
-    )?.reason
-    throw firstError instanceof Error
-      ? firstError
-      : new CnbFetchError('all recent fixing requests failed')
-  }
-
-  const byDate = new Map<string, CnbDailyFixing>()
-  for (const fixing of fixings) byDate.set(fixing.date, fixing)
-
-  return Array.from(byDate.values())
-    .sort((left, right) => left.date.localeCompare(right.date))
-    .slice(-businessDays)
-}
-
 async function fetchAt(
   url: string,
   signal?: AbortSignal,

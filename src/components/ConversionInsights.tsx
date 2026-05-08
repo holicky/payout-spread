@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components/native'
 
-import { useAggregateRecentRates } from '../api/cnb/useAggregateRecentRates'
+import { useRecentRates } from '../api/cnb/useRecentRates'
 import { bestPartOfMonth, bestWeekday } from '../lib/insights'
 import { useConversionStore } from '../state/conversion'
 import { colors, spacing } from '../theme'
@@ -12,7 +12,7 @@ const INSIGHTS_WINDOW_DAYS = 90
 const INSIGHTS_MIN_SAMPLES = 60
 
 export function ConversionInsights() {
-  const { data, isLoading } = useAggregateRecentRates(INSIGHTS_WINDOW_DAYS)
+  const { data, isLoading } = useRecentRates(INSIGHTS_WINDOW_DAYS)
   const sourceCode = useConversionStore(state => state.sourceCode)
   const targetCode = useConversionStore(state => state.targetCode)
 
