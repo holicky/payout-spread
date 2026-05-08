@@ -10,26 +10,25 @@ export function buildSections(
   rates: CurrencyRate[],
   query: string,
 ): CurrencySection[] {
+  const displayName = (rate: CurrencyRate) =>
+    nameFor(rate.code, rate.currencyName)
   const normalizedQuery = query.trim().toLowerCase()
+
   const matched = rates.filter(rate => {
     if (!normalizedQuery) return true
-    const name = nameFor(rate.code, rate.currencyName).toLowerCase()
     return (
-      name.includes(normalizedQuery) ||
+      displayName(rate).toLowerCase().includes(normalizedQuery) ||
       rate.code.toLowerCase().includes(normalizedQuery)
     )
   })
 
-  const sorted = [...matched].sort((a, b) =>
-    nameFor(a.code, a.currencyName).localeCompare(
-      nameFor(b.code, b.currencyName),
-    ),
+  const sorted = [...matched].sort((left, right) =>
+    displayName(left).localeCompare(displayName(right)),
   )
 
   const byLetter = new Map<string, CurrencyRate[]>()
   for (const rate of sorted) {
-    const letter =
-      nameFor(rate.code, rate.currencyName)[0]?.toUpperCase() ?? '#'
+    const letter = displayName(rate)[0]?.toUpperCase() ?? '#'
     if (!byLetter.has(letter)) byLetter.set(letter, [])
     byLetter.get(letter)!.push(rate)
   }
