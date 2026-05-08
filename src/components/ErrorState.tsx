@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import styled from 'styled-components/native'
 
-import { CNBFetchError } from '../api/cnb/client'
-import { CNBParseError } from '../api/cnb/parser'
+import { friendlyMessage } from '../lib/friendly-error'
 import { TEST_IDS } from '../lib/testIds'
 import { colors, radii, spacing } from '../theme'
 import { HapticPressable } from './HapticPressable'
@@ -40,21 +39,6 @@ export function ErrorState({ error, onRetry, isRetrying }: Props) {
       </RetryButton>
     </Wrap>
   )
-}
-
-function friendlyMessage(error: unknown): string {
-  if (error instanceof CNBParseError) {
-    return 'The CNB response format changed or contained invalid data.'
-  }
-
-  if (error instanceof CNBFetchError) {
-    return error.status
-      ? `The CNB service returned HTTP ${error.status}.`
-      : 'The CNB service did not respond.'
-  }
-
-  if (error instanceof Error) return error.message
-  return 'Please check your connection and try again.'
 }
 
 const Wrap = styled.View`

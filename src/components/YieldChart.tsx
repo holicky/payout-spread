@@ -5,6 +5,7 @@ import Svg, { Line } from 'react-native-svg'
 import styled from 'styled-components/native'
 
 import { formatNumber } from '../lib/format'
+import { niceStep } from '../lib/nice-step'
 import type { ChartPoint } from '../lib/series'
 import { colors, radii, spacing } from '../theme'
 import { Skeleton } from './Skeleton'
@@ -186,17 +187,6 @@ export const YieldChart = memo(function YieldChart({
     </Card>
   )
 })
-
-function niceStep(target: number): number {
-  if (target <= 0) return 1
-  const exp = Math.floor(Math.log10(target))
-  const base = Math.pow(10, exp)
-  const m = target / base
-  if (m < 1.5) return 1 * base
-  if (m < 3) return 2 * base
-  if (m < 7) return 5 * base
-  return 10 * base
-}
 
 const Card = styled.View`
   background-color: ${colors.surface};
