@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components/native'
 
 import { useDailyRates } from '../api/cnb/useDailyRates'
-import { useSelectedRate } from '../hooks/useSelectedRate'
-import { convertCurrency, CZK_RATE } from '../lib/convert'
+import { useRatesWithCzk } from '../hooks/useRatesWithCzk'
+import { convertCurrency } from '../lib/convert'
+import { selectRate } from '../lib/select-rate'
 import { formatNumber } from '../lib/format'
 import { TEST_IDS } from '../lib/testIds'
 import { useConversionStore, useEvaluatedAmount } from '../state/conversion'
@@ -19,24 +20,21 @@ type PickerSide = 'source' | 'target' | null
 export function ConversionForm() {
   const { data } = useDailyRates()
 
-  const amount = useConversionStore(s => s.amount)
-  const setAmount = useConversionStore(s => s.setAmount)
-  const sourceCode = useConversionStore(s => s.sourceCode)
-  const targetCode = useConversionStore(s => s.targetCode)
-  const setSourceCode = useConversionStore(s => s.setSourceCode)
-  const setTargetCode = useConversionStore(s => s.setTargetCode)
-  const swap = useConversionStore(s => s.swap)
+  const amount = useConversionStore(state => state.amount)
+  const setAmount = useConversionStore(state => state.setAmount)
+  const sourceCode = useConversionStore(state => state.sourceCode)
+  const targetCode = useConversionStore(state => state.targetCode)
+  const setSourceCode = useConversionStore(state => state.setSourceCode)
+  const setTargetCode = useConversionStore(state => state.setTargetCode)
+  const swap = useConversionStore(state => state.swap)
   const sourceAmount = useEvaluatedAmount()
 
   const [pickerSide, setPickerSide] = useState<PickerSide>(null)
   const [keypadOpen, setKeypadOpen] = useState(false)
 
-  const ratesWithCzk = useMemo(
-    () => (data ? [CZK_RATE, ...data.rates] : []),
-    [data],
-  )
-  const sourceRate = useSelectedRate(ratesWithCzk, sourceCode, 'CZK')
-  const targetRate = useSelectedRate(ratesWithCzk, targetCode, 'USD')
+  const ratesWithCzk = useRatesWithCzk(data)
+  const sourceRate = selectRate(ratesWithCzk, sourceCode, 'CZK')
+  const targetRate = selectRate(ratesWithCzk, targetCode, 'USD')
 
   if (!sourceRate || !targetRate) return null
 

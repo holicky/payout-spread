@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { FlatList, RefreshControl } from 'react-native'
 import styled from 'styled-components/native'
 
@@ -7,16 +7,16 @@ import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
-import { useSelectedRate } from '../hooks/useSelectedRate'
-import { CZK_RATE } from '../lib/convert'
+import { useRatesWithCzk } from '../hooks/useRatesWithCzk'
+import { selectRate } from '../lib/select-rate'
 import { TEST_IDS } from '../lib/testIds'
 import { useConversionStore } from '../state/conversion'
 import { colors, spacing } from '../theme'
 import { CurrencyPickerModal } from '../components/currency/CurrencyPickerModal'
 
 export function TodayScreen() {
-  const sourceCode = useConversionStore(s => s.sourceCode)
-  const setSourceCode = useConversionStore(s => s.setSourceCode)
+  const sourceCode = useConversionStore(state => state.sourceCode)
+  const setSourceCode = useConversionStore(state => state.setSourceCode)
   const [pickerOpen, setPickerOpen] = useState(false)
 
   return (
@@ -59,8 +59,8 @@ function TodayContent({
   pickerOpen: boolean
   setPickerOpen: (open: boolean) => void
 }) {
-  const ratesWithCzk = useMemo(() => [CZK_RATE, ...data.rates], [data])
-  const reference = useSelectedRate(ratesWithCzk, sourceCode, 'CZK')
+  const ratesWithCzk = useRatesWithCzk(data)
+  const reference = selectRate(ratesWithCzk, sourceCode, 'CZK')
 
   if (!reference) return null
 
@@ -68,8 +68,8 @@ function TodayContent({
     <>
       <FlatList
         testID={TEST_IDS.rates.list}
-        data={data.rates.filter(r => r.code !== reference.code)}
-        keyExtractor={r => r.code}
+        data={data.rates.filter(rate => rate.code !== reference.code)}
+        keyExtractor={rate => rate.code}
         contentContainerStyle={{ padding: spacing.lg, paddingBottom: 32 }}
         renderItem={({ item }) => (
           <RateCard rate={item} reference={reference} />
