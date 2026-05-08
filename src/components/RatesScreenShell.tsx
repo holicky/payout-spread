@@ -17,10 +17,11 @@ type RatesScreenState = {
 
 type Props = {
   testID: string
+  title: string
   children: (state: RatesScreenState) => ReactNode
 }
 
-export function RatesScreenShell({ testID, children }: Props) {
+export function RatesScreenShell({ testID, title, children }: Props) {
   const {
     data,
     isPending,
@@ -33,7 +34,7 @@ export function RatesScreenShell({ testID, children }: Props) {
   } = useDailyRates()
 
   return (
-    <Screen testID={testID}>
+    <Screen testID={testID} title={title}>
       {isPending ? (
         <Centered>
           <ActivityIndicator />

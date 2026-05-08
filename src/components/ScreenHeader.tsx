@@ -12,7 +12,7 @@ export function ScreenHeader({ title }: Props) {
   const insets = useSafeAreaInsets()
   return (
     <LinearGradient
-      colors={[colors.accent, colors.accentDeep]}
+      colors={[colors.accentDeep, colors.accent]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
     >

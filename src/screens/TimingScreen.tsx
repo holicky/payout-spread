@@ -5,30 +5,58 @@ import { ConversionForm } from '../components/ConversionForm'
 import { ConversionInsights } from '../components/ConversionInsights'
 import { LastUpdated } from '../components/LastUpdated'
 import { RatesScreenShell } from '../components/RatesScreenShell'
+import { useHeaderHeight } from '../components/Screen'
 import { TEST_IDS } from '../lib/testIds'
-import { spacing } from '../theme'
+import { screenContent, spacing } from '../theme'
 
 export function TimingScreen() {
   return (
-    <RatesScreenShell testID={TEST_IDS.screen.timing}>
+    <RatesScreenShell testID={TEST_IDS.screen.timing} title="Conversion Timing">
       {({ data, dataUpdatedAt, refetch, isFetching }) => (
-        <Scroll
-          contentContainerStyle={{ padding: spacing.lg, paddingBottom: 32 }}
-        >
-          <LastUpdated
-            date={data.date}
-            updatedAt={dataUpdatedAt}
-            onRefresh={() => {
-              refetch()
-            }}
-            isRefreshing={isFetching}
-            testID={TEST_IDS.common.refreshRates}
-          />
-          <ConversionForm />
-          <ConversionInsights />
-        </Scroll>
+        <TimingContent
+          date={data.date}
+          dataUpdatedAt={dataUpdatedAt}
+          refetch={refetch}
+          isFetching={isFetching}
+        />
       )}
     </RatesScreenShell>
+  )
+}
+
+function TimingContent({
+  date,
+  dataUpdatedAt,
+  refetch,
+  isFetching,
+}: {
+  date: string
+  dataUpdatedAt: number
+  refetch: () => void
+  isFetching: boolean
+}) {
+  const headerHeight = useHeaderHeight()
+  return (
+    <Scroll
+      contentContainerStyle={{
+        ...screenContent,
+        padding: spacing.lg,
+        paddingBottom: 32,
+        marginTop: headerHeight,
+      }}
+    >
+      <LastUpdated
+        date={date}
+        updatedAt={dataUpdatedAt}
+        onRefresh={() => {
+          refetch()
+        }}
+        isRefreshing={isFetching}
+        testID={TEST_IDS.common.refreshRates}
+      />
+      <ConversionForm />
+      <ConversionInsights />
+    </Scroll>
   )
 }
 

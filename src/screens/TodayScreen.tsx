@@ -7,11 +7,12 @@ import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
+import { useHeaderHeight } from '../components/Screen'
 import { useRatesWithCZK } from '../hooks/useRatesWithCZK'
 import { selectRate } from '../lib/select-rate'
 import { TEST_IDS } from '../lib/testIds'
 import { useConversionStore } from '../state/conversion'
-import { colors, spacing } from '../theme'
+import { colors, screenContent, spacing } from '../theme'
 import { CurrencyPickerModal } from '../components/currency/CurrencyPickerModal'
 
 export function TodayScreen() {
@@ -20,7 +21,7 @@ export function TodayScreen() {
   const [pickerOpen, setPickerOpen] = useState(false)
 
   return (
-    <RatesScreenShell testID={TEST_IDS.screen.today}>
+    <RatesScreenShell testID={TEST_IDS.screen.today} title="Today's Rates">
       {({ data, dataUpdatedAt, refetch, isFetching, isRefetching }) => (
         <TodayContent
           data={data}
@@ -61,6 +62,7 @@ function TodayContent({
 }) {
   const ratesWithCZK = useRatesWithCZK(data)
   const reference = selectRate(ratesWithCZK, sourceCode, 'CZK')
+  const headerHeight = useHeaderHeight()
 
   const rates = useMemo(
     () =>
@@ -117,7 +119,12 @@ function TodayContent({
         testID={TEST_IDS.rates.list}
         data={rates}
         keyExtractor={rate => rate.code}
-        contentContainerStyle={{ padding: spacing.lg, paddingBottom: 32 }}
+        contentContainerStyle={{
+          ...screenContent,
+          padding: spacing.lg,
+          paddingBottom: 32,
+          marginTop: headerHeight,
+        }}
         renderItem={renderRate}
         ItemSeparatorComponent={Gap}
         initialNumToRender={15}

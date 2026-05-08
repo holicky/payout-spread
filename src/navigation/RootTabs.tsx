@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
-import { ScreenHeader } from '../components/ScreenHeader'
 import { TEST_IDS } from '../lib/testIds'
 import { ConverterScreen } from '../screens/ConverterScreen'
 import { TimingScreen } from '../screens/TimingScreen'
@@ -34,7 +33,7 @@ export function RootTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        header: ({ options }) => <ScreenHeader title={options.title ?? ''} />,
+        headerShown: false,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
