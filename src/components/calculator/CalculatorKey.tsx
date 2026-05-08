@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import styled from 'styled-components/native'
 
 import { TEST_IDS } from '../../lib/testIds'
@@ -16,7 +16,7 @@ type Props = {
   accessibilityLabel?: string
 }
 
-export function CalculatorKey({
+export const CalculatorKey = memo(function CalculatorKey({
   variant,
   onPress,
   label,
@@ -36,7 +36,7 @@ export function CalculatorKey({
       {icon ?? <Label>{label}</Label>}
     </Button>
   )
-}
+})
 
 const NumberButton = styled(HapticPressable)`
   flex: 1;
