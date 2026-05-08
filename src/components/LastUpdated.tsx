@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Animated, Easing } from 'react-native'
+import { Animated, AppState, Easing } from 'react-native'
 import styled from 'styled-components/native'
 
 import { formatLongDate } from '../lib/format'
@@ -26,13 +26,32 @@ export function LastUpdated({
 }: Props) {
   const [, setNow] = useState(() => Date.now())
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 30_000)
-    return () => clearInterval(id)
+    let id: ReturnType<typeof setInterval> | null = null
+    const start = () => {
+      if (id != null) return
+      setNow(Date.now())
+      id = setInterval(() => setNow(Date.now()), 30_000)
+    }
+    const stop = () => {
+      if (id != null) {
+        clearInterval(id)
+        id = null
+      }
+    }
+    if (AppState.currentState === 'active') start()
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') start()
+      else stop()
+    })
+    return () => {
+      stop()
+      sub.remove()
+    }
   }, [])
 
   const label =
     updatedAt != null
-      ? `Updated ${relativeTime(Date.now() - updatedAt)}`
+      ? `Updated ${relativeTime(Date.now() - updatedAt)}${isRefreshing ? ' · refreshing' : ''}`
       : `Last updated: ${formatLongDate(date)}`
 
   return (
