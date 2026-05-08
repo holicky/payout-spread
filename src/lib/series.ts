@@ -1,5 +1,5 @@
-import type { CnbDailyFixing, CurrencyRate } from '../api/cnb/types'
-import { convertCurrency, CZK_RATE } from './convert'
+import type { CnbDailyFixing } from '../api/cnb/types'
+import { convertCurrency, findRate } from './convert'
 import { formatLongDate } from './format'
 
 export type ChartPoint = {
@@ -13,16 +13,13 @@ export function buildSeries(
   targetCode: string,
   amount: number | null,
 ): ChartPoint[] {
-  return fixings.map(f => {
-    const src = rateOf(f, sourceCode)
-    const tgt = rateOf(f, targetCode)
+  return fixings.map(fixing => {
+    const source = findRate(fixing.rates, sourceCode)
+    const target = findRate(fixing.rates, targetCode)
     const value =
-      src && tgt && amount != null ? convertCurrency(amount, src, tgt) : 0
-    return { value, label: formatLongDate(f.date) }
+      source && target && amount != null
+        ? convertCurrency(amount, source, target)
+        : 0
+    return { value, label: formatLongDate(fixing.date) }
   })
-}
-
-function rateOf(f: CnbDailyFixing, code: string): CurrencyRate | undefined {
-  if (code === 'CZK') return CZK_RATE
-  return f.rates.find(r => r.code === code)
 }

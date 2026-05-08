@@ -19,12 +19,6 @@ export class CnbFetchError extends Error {
   }
 }
 
-export async function fetchDailyRates(
-  signal?: AbortSignal,
-): Promise<CnbDailyFixing> {
-  return fetchAt(CNB_DAILY_URL, signal)
-}
-
 export async function fetchDailyRatesAt(
   date: Date,
   signal?: AbortSignal,
@@ -37,16 +31,16 @@ export async function fetchRecentDailyRates(
   businessDays: number,
   signal?: AbortSignal,
 ): Promise<CnbDailyFixing[]> {
-  const calendarDays = Math.ceil(businessDays * 1.6) + 3
+  const calendarDays = calendarDaysFor(businessDays)
   const today = new Date()
-  const dates = Array.from({ length: calendarDays }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(d.getDate() - i)
-    return d
+  const dates = Array.from({ length: calendarDays }, (_, index) => {
+    const date = new Date(today)
+    date.setDate(date.getDate() - index)
+    return date
   })
 
   const settled = await Promise.allSettled(
-    dates.map(d => fetchDailyRatesAt(d, signal)),
+    dates.map(date => fetchDailyRatesAt(date, signal)),
   )
   const fixings = settled.flatMap(result =>
     result.status === 'fulfilled' ? [result.value] : [],
@@ -62,10 +56,10 @@ export async function fetchRecentDailyRates(
   }
 
   const byDate = new Map<string, CnbDailyFixing>()
-  for (const f of fixings) byDate.set(f.date, f)
+  for (const fixing of fixings) byDate.set(fixing.date, fixing)
 
   return Array.from(byDate.values())
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort((left, right) => left.date.localeCompare(right.date))
     .slice(-businessDays)
 }
 
@@ -81,6 +75,14 @@ async function fetchAt(
   return parseCnbDaily(body)
 }
 
+/**
+ * Calendar days needed to cover N business days. Weekends drop ~2/7 of days
+ * and the +3 buffer absorbs typical Czech bank holidays.
+ */
+export function calendarDaysFor(businessDays: number): number {
+  return Math.ceil(businessDays * 1.6) + 3
+}
+
 export function formatCnbDate(d: Date): string {
   const dd = String(d.getDate()).padStart(2, '0')
   const mm = String(d.getMonth() + 1).padStart(2, '0')
@@ -88,6 +90,8 @@ export function formatCnbDate(d: Date): string {
   return `${dd}.${mm}.${yyyy}`
 }
 
+// Soft semaphore — caps concurrent in-flight requests so we don't hammer the
+// CNB host. FIFO is best-effort; not worth strict ordering at this volume.
 async function withCnbRequestSlot<T>(run: () => Promise<T>): Promise<T> {
   if (activeRequests >= MAX_PARALLEL_CNB_REQUESTS) {
     await new Promise<void>(resolve => requestQueue.push(resolve))

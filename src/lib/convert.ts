@@ -42,3 +42,15 @@ export function convertCurrency(
   const inCzk = foreignToCzk(amount, source)
   return czkToForeign(inCzk, target)
 }
+
+/**
+ * Look up a rate by code. Returns `CZK_RATE` for "CZK" so call sites can treat
+ * CZK uniformly without a separate branch.
+ */
+export function findRate(
+  rates: CurrencyRate[],
+  code: string,
+): CurrencyRate | undefined {
+  if (code === 'CZK') return CZK_RATE
+  return rates.find(rate => rate.code === code)
+}
