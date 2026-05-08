@@ -30,30 +30,38 @@ export const CzkYieldChart = memo(function CzkYieldChart({
   unit,
   isLoading,
 }: Props) {
-  const values = useMemo(
-    () => data.map(d => d.value).filter(v => Number.isFinite(v) && v > 0),
-    [data],
-  )
-  const hasRange = values.length >= 2
-  const dataMin = hasRange ? Math.min(...values) : 0
-  const dataMax = hasRange ? Math.max(...values) : 1
-
-  const range = dataMax - dataMin || dataMax || 1
-  const step = niceStep(range / SECTIONS || 1)
-  const yMin = Math.max(0, Math.floor((dataMin - range * 0.1) / step) * step)
-  const yMax = Math.ceil((dataMax + range * 0.1) / step) * step
+  const { values, dataMin, dataMax, yMin, yMax, hasRange } = useMemo(() => {
+    const numericValues = data
+      .map(point => point.value)
+      .filter(value => Number.isFinite(value) && value > 0)
+    const inRange = numericValues.length >= 2
+    const min = inRange ? Math.min(...numericValues) : 0
+    const max = inRange ? Math.max(...numericValues) : 1
+    const range = max - min || max || 1
+    const step = niceStep(range / SECTIONS || 1)
+    return {
+      values: numericValues,
+      dataMin: min,
+      dataMax: max,
+      hasRange: inRange,
+      yMin: Math.max(0, Math.floor((min - range * 0.1) / step) * step),
+      yMax: Math.ceil((max + range * 0.1) / step) * step,
+    }
+  }, [data])
 
   const chartData = useMemo(
     () =>
-      data.map(p => ({
-        value: p.value,
+      data.map(point => ({
+        value: point.value,
         label: '',
-        date: p.label,
+        date: point.label,
       })),
     [data],
   )
 
   const opacity = useRef(new Animated.Value(1)).current
+  // Stable signature so the fade only re-fires when the visible range changes,
+  // not on every refetch that hands us a fresh array reference.
   const dataKey = `${data.length}|${data[0]?.label ?? ''}|${data[data.length - 1]?.label ?? ''}`
   useEffect(() => {
     opacity.setValue(0)
@@ -68,8 +76,7 @@ export const CzkYieldChart = memo(function CzkYieldChart({
   const handlePointerLabel = useCallback((items?: PointerLabelItem[]) => {
     const item = items?.[0]
     if (typeof item?.value === 'number') {
-      // gifted-charts calls pointerLabelComponent while rendering; defer the
-      // state update so React does not warn about updating during render.
+      // Deferred because gifted-charts invokes this during render.
       setTimeout(
         () =>
           setFocused({
