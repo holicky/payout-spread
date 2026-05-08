@@ -9,8 +9,8 @@ export const colors = {
   surfaceSoft: '#fafafa',
   accent: '#6643f0',
   accentSoft: '#eff6ff',
-  accentDeep: '#4431a3',
-  navy: '#1e3a8a',
+  accentDeep: '#4b35b6',
+  accentDark: '#4c2097',
   positive: '#15b340',
   negative: '#bf2028',
 } as const

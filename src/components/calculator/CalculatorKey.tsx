@@ -53,7 +53,7 @@ const OperatorButton = styled(HapticPressable)`
   flex: 1;
   height: 60px;
   border-radius: ${radii.lg}px;
-  background-color: ${colors.navy};
+  background-color: ${colors.accentDark};
   align-items: center;
   justify-content: center;
 `
