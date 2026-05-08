@@ -31,7 +31,6 @@ export function ConverterScreen() {
             testID={TEST_IDS.common.refreshRates}
           />
           <ConversionForm />
-          <ConversionHistory />
           <CtaWrap>
             <CtaButton
               testID={TEST_IDS.converter.timingCta}
@@ -39,6 +38,7 @@ export function ConverterScreen() {
               onPress={() => navigation.navigate('Timing')}
             />
           </CtaWrap>
+          <ConversionHistory />
         </Scroll>
       )}
     </RatesScreenShell>
