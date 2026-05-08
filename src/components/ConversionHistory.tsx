@@ -19,8 +19,8 @@ export function ConversionHistory() {
   const [days, setDays] = useState<number>(DEFAULT_PERIOD_DAYS)
   const { data, isLoading, isError, isPlaceholderData } = useRecentRates(days)
   const { width } = useWindowDimensions()
-  const sourceCode = useConversionStore(s => s.sourceCode)
-  const targetCode = useConversionStore(s => s.targetCode)
+  const sourceCode = useConversionStore(state => state.sourceCode)
+  const targetCode = useConversionStore(state => state.targetCode)
   const sourceAmount = useEvaluatedAmount()
 
   const series = useMemo(
@@ -31,7 +31,9 @@ export function ConversionHistory() {
     [data, sourceCode, sourceAmount, targetCode],
   )
   const stats = useMemo<StatItem[]>(() => {
-    const values = series.map(p => p.value).filter(v => Number.isFinite(v))
+    const values = series
+      .map(point => point.value)
+      .filter(value => Number.isFinite(value))
     const last = values.at(-1) ?? 0
     const first = values[0] ?? 0
     const min = values.length ? Math.min(...values) : 0

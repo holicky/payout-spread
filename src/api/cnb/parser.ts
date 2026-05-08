@@ -25,19 +25,18 @@ const MONTHS = [
 ]
 
 // CNB's "today" endpoint emits full month names ("April"); the date-parameterized
-// endpoint emits 3-letter abbreviations ("Apr"). Accept both, plus "May" which
-// is identical in both forms.
+// endpoint emits 3-letter abbreviations ("Apr"). Accept both.
 const MONTH_INDEX = new Map<string, number>(
-  MONTHS.flatMap((name, i) => [
-    [name, i],
-    [name.slice(0, 3), i],
+  MONTHS.flatMap((name, index) => [
+    [name, index],
+    [name.slice(0, 3), index],
   ]),
 )
 
 export function parseCnbDaily(input: string): CnbDailyFixing {
   const lines = input
     .split('\n')
-    .map(l => l.trim())
+    .map(line => line.trim())
     .filter(Boolean)
 
   if (lines.length < 2) {
@@ -60,7 +59,9 @@ export function parseCnbDaily(input: string): CnbDailyFixing {
     throw new CnbParseError(`unexpected column header: "${lines[1]}"`)
   }
 
-  const rates = lines.slice(2).map((line, i) => parseRateRow(line, i + 1))
+  const rates = lines
+    .slice(2)
+    .map((line, index) => parseRateRow(line, index + 1))
 
   return { date, sequenceNumber, rates }
 }

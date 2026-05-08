@@ -130,10 +130,10 @@ export function operatorLabel(operator: CalculatorOperator): string {
         : '÷'
 }
 
-export function formatResult(n: number): string {
-  if (!Number.isFinite(n)) return '0'
+export function formatResult(value: number): string {
+  if (!Number.isFinite(value)) return '0'
   // Trim float dust without ever printing scientific notation in our range.
-  return String(Math.round(n * 1e8) / 1e8)
+  return String(Math.round(value * 1e8) / 1e8)
 }
 
 /**

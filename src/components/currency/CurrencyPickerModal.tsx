@@ -32,7 +32,7 @@ export function CurrencyPickerModal({
 
   const sections = useMemo(() => buildSections(rates, query), [rates, query])
   const lettersWithData = useMemo(
-    () => new Set(sections.map(s => s.letter)),
+    () => new Set(sections.map(section => section.letter)),
     [sections],
   )
 
@@ -95,7 +95,7 @@ export function CurrencyPickerModal({
               testID={TEST_IDS.picker.list}
               ref={listRef}
               sections={sections}
-              keyExtractor={r => r.code}
+              keyExtractor={rate => rate.code}
               initialNumToRender={16}
               maxToRenderPerBatch={16}
               windowSize={7}

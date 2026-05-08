@@ -27,6 +27,6 @@ export const useConversionStore = create<ConversionState>(set => ({
 }))
 
 export function useEvaluatedAmount(): number | null {
-  const amount = useConversionStore(s => s.amount)
+  const amount = useConversionStore(state => state.amount)
   return evaluateExpression(amount)
 }

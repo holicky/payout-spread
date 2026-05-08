@@ -11,7 +11,7 @@ type Props = {
 export function ScreenHeader({ title }: Props) {
   const insets = useSafeAreaInsets()
   return (
-    <Gradient
+    <LinearGradient
       colors={[colors.accent, colors.accentDeep]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
@@ -19,11 +19,9 @@ export function ScreenHeader({ title }: Props) {
       <Inner style={{ paddingTop: insets.top + spacing.md }}>
         <Title>{title}</Title>
       </Inner>
-    </Gradient>
+    </LinearGradient>
   )
 }
-
-const Gradient = styled(LinearGradient)``
 
 const Inner = styled.View`
   padding: ${spacing.md}px ${spacing.lg}px ${spacing.xl}px;
