@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { memo, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Animated, AppState, Easing } from 'react-native'
 import styled from 'styled-components/native'
 
@@ -17,7 +17,7 @@ type Props = {
   testID?: string
 }
 
-export function LastUpdated({
+export const LastUpdated = memo(function LastUpdated({
   date,
   updatedAt,
   onRefresh,
@@ -76,7 +76,7 @@ export function LastUpdated({
       ) : null}
     </Wrap>
   )
-}
+})
 
 function Spinner({
   spinning,

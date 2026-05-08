@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FlatList, RefreshControl } from 'react-native'
 import styled from 'styled-components/native'
 
-import type { CNBDailyFixing } from '../api/cnb/types'
+import type { CNBDailyFixing, CurrencyRate } from '../api/cnb/types'
 import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
 import { RateCard } from '../components/currency/RateCard'
@@ -62,44 +62,69 @@ function TodayContent({
   const ratesWithCZK = useRatesWithCZK(data)
   const reference = selectRate(ratesWithCZK, sourceCode, 'CZK')
 
+  const rates = useMemo(
+    () =>
+      reference ? data.rates.filter(rate => rate.code !== reference.code) : [],
+    [data.rates, reference],
+  )
+
+  const renderRate = useCallback(
+    ({ item }: { item: CurrencyRate }) =>
+      reference ? <RateCard rate={item} reference={reference} /> : null,
+    [reference],
+  )
+
+  const handleRefresh = useCallback(() => {
+    refetch()
+  }, [refetch])
+
+  const header = useMemo(() => {
+    if (!reference) return null
+    return (
+      <Header>
+        <LastUpdated
+          date={data.date}
+          updatedAt={dataUpdatedAt}
+          onRefresh={handleRefresh}
+          isRefreshing={isFetching}
+          testID={TEST_IDS.common.refreshRates}
+        />
+        <SmallSpacer />
+        <FieldLabel>Show rates in</FieldLabel>
+        <CurrencyCard
+          compact
+          code={reference.code}
+          testID={TEST_IDS.rates.referenceCurrency}
+          onCurrencyPress={() => setPickerOpen(true)}
+        />
+        <BigSpacer />
+      </Header>
+    )
+  }, [
+    data.date,
+    dataUpdatedAt,
+    handleRefresh,
+    isFetching,
+    reference,
+    setPickerOpen,
+  ])
+
   if (!reference) return null
 
   return (
     <>
       <FlatList
         testID={TEST_IDS.rates.list}
-        data={data.rates.filter(rate => rate.code !== reference.code)}
+        data={rates}
         keyExtractor={rate => rate.code}
         contentContainerStyle={{ padding: spacing.lg, paddingBottom: 32 }}
-        renderItem={({ item }) => (
-          <RateCard rate={item} reference={reference} />
-        )}
+        renderItem={renderRate}
         ItemSeparatorComponent={Gap}
+        initialNumToRender={15}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
         }
-        ListHeaderComponent={
-          <Header>
-            <LastUpdated
-              date={data.date}
-              updatedAt={dataUpdatedAt}
-              onRefresh={() => {
-                refetch()
-              }}
-              isRefreshing={isFetching}
-              testID={TEST_IDS.common.refreshRates}
-            />
-            <SmallSpacer />
-            <FieldLabel>Show rates in</FieldLabel>
-            <CurrencyCard
-              compact
-              code={reference.code}
-              testID={TEST_IDS.rates.referenceCurrency}
-              onCurrencyPress={() => setPickerOpen(true)}
-            />
-            <BigSpacer />
-          </Header>
-        }
+        ListHeaderComponent={header}
       />
 
       {pickerOpen ? (
