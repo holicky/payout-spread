@@ -45,22 +45,23 @@ export function shouldRetryCnbQuery(
 
 export function recentCnbDates(calendarDays: number): Date[] {
   const today = new Date()
-  return Array.from({ length: calendarDays }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(d.getDate() - i)
-    return d
+  return Array.from({ length: calendarDays }, (_, index) => {
+    const date = new Date(today)
+    date.setDate(date.getDate() - index)
+    return date
   })
 }
 
 function msUntilNextCnbPublish(now = new Date()): number {
-  const next = new Date(now)
-  next.setHours(CNB_PUBLISH_HOUR, CNB_PUBLISH_MINUTE, 0, 0)
+  let next = setPragueTime(now, CNB_PUBLISH_HOUR, CNB_PUBLISH_MINUTE)
 
-  if (now >= next || isWeekend(next)) {
-    do {
-      next.setDate(next.getDate() + 1)
-      next.setHours(CNB_PUBLISH_HOUR, CNB_PUBLISH_MINUTE, 0, 0)
-    } while (isWeekend(next))
+  while (next.getTime() <= now.getTime() || isPragueWeekend(next)) {
+    // +25h crosses DST safely; setPragueTime then snaps back to 14:35 Prague.
+    next = setPragueTime(
+      new Date(next.getTime() + 25 * 60 * 60 * 1000),
+      CNB_PUBLISH_HOUR,
+      CNB_PUBLISH_MINUTE,
+    )
   }
 
   return Math.max(60_000, next.getTime() - now.getTime())
@@ -70,7 +71,40 @@ function isToday(date: Date): boolean {
   return formatCnbDate(date) === formatCnbDate(new Date())
 }
 
-function isWeekend(date: Date): boolean {
-  const day = date.getDay()
+function pragueOffsetMinutes(at: Date): number {
+  const pragueIso = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Prague',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(at)
+  const [date, time] = pragueIso.split(' ')
+  const asUtc = Date.parse(`${date}T${time}Z`)
+  return Math.round((asUtc - at.getTime()) / 60_000)
+}
+
+function setPragueTime(anchor: Date, hour: number, minute: number): Date {
+  const offset = pragueOffsetMinutes(anchor)
+  const pragueWall = new Date(anchor.getTime() + offset * 60_000)
+  const wallTarget = Date.UTC(
+    pragueWall.getUTCFullYear(),
+    pragueWall.getUTCMonth(),
+    pragueWall.getUTCDate(),
+    hour,
+    minute,
+    0,
+    0,
+  )
+  return new Date(wallTarget - offset * 60_000)
+}
+
+function isPragueWeekend(at: Date): boolean {
+  const offset = pragueOffsetMinutes(at)
+  const pragueWall = new Date(at.getTime() + offset * 60_000)
+  const day = pragueWall.getUTCDay()
   return day === 0 || day === 6
 }
