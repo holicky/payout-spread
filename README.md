@@ -51,7 +51,7 @@ The app loads CNB data on first launch — an internet connection is needed for 
 src/
 ├── api/cnb/         CNB client, parser, React Query hooks
 ├── components/      Shared UI: cards, charts, calculator, currency picker
-├── hooks/           Cross-screen helpers (e.g. useSelectedRate)
+├── hooks/           Cross-screen helpers (e.g. useRatesWithCZK)
 ├── lib/             Pure logic: conversion math, insights, formatting
 ├── navigation/      Bottom tab navigator
 ├── screens/         TodayScreen, ConverterScreen, TimingScreen
