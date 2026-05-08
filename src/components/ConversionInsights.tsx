@@ -9,25 +9,46 @@ import { Disclaimer } from './Disclaimer'
 import { InsightCard } from './InsightCard'
 
 const INSIGHTS_WINDOW_DAYS = 90
+const INSIGHTS_MIN_SAMPLES = 60
 
 export function ConversionInsights() {
-  const { data } = useAggregateRecentRates(INSIGHTS_WINDOW_DAYS)
-  const sourceCode = useConversionStore(s => s.sourceCode)
-  const targetCode = useConversionStore(s => s.targetCode)
+  const { data, isLoading } = useAggregateRecentRates(INSIGHTS_WINDOW_DAYS)
+  const sourceCode = useConversionStore(state => state.sourceCode)
+  const targetCode = useConversionStore(state => state.targetCode)
+
+  const samples = data?.length ?? 0
+  const hasEnoughData = samples >= INSIGHTS_MIN_SAMPLES
 
   const { weekdayInsight, monthPartInsight } = useMemo(
     () =>
-      data && data.length >= INSIGHTS_WINDOW_DAYS
+      hasEnoughData && data
         ? {
             weekdayInsight: bestWeekday(data, sourceCode, targetCode),
             monthPartInsight: bestPartOfMonth(data, sourceCode, targetCode),
           }
         : { weekdayInsight: null, monthPartInsight: null },
-    [data, sourceCode, targetCode],
+    [data, hasEnoughData, sourceCode, targetCode],
   )
 
+  if (!hasEnoughData) {
+    return (
+      <>
+        <SectionTitle>Insights</SectionTitle>
+        <InsightCard
+          icon="time-outline"
+          headline="Gathering history"
+          detail={
+            isLoading
+              ? 'Loading rate history…'
+              : `Need ${INSIGHTS_MIN_SAMPLES} business days, have ${samples}.`
+          }
+        />
+      </>
+    )
+  }
+
   if (!weekdayInsight && !monthPartInsight) return null
-  const sampleSize = data?.length ?? INSIGHTS_WINDOW_DAYS
+  const sampleSize = samples
 
   return (
     <>
@@ -65,8 +86,8 @@ export function ConversionInsights() {
   )
 }
 
-function signed(n: number): string {
-  return `${n >= 0 ? '+' : ''}${n.toFixed(2)}`
+function signed(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}`
 }
 
 const SectionTitle = styled.Text`
