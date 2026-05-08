@@ -67,9 +67,7 @@ export function CurrencyCard({
           <AmountText>{amount || '0'}</AmountText>
         </HapticPressable>
       ) : (
-        <Right
-          testID={amountTestID}
-        >
+        <Right testID={amountTestID}>
           <AmountText>{amount || '0'}</AmountText>
           {rateLine ? <RateLine>{rateLine}</RateLine> : null}
         </Right>
