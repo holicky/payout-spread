@@ -74,20 +74,28 @@ export const YieldChart = memo(function YieldChart({
   }, [dataKey, opacity])
 
   const [focused, setFocused] = useState<Focused | null>(null)
+  const touching = useRef(false)
   const handlePointerLabel = useCallback((items?: PointerLabelItem[]) => {
     const item = items?.[0]
     if (typeof item?.value === 'number') {
-      // Deferred because gifted-charts invokes this during render.
-      setTimeout(
-        () =>
-          setFocused({
-            value: item.value!,
-            date: item.date ?? item.label ?? '',
-          }),
-        0,
-      )
+      // Deferred because gifted-charts invokes this during render. Gated by
+      // `touching` so late callbacks fired after touchend can't re-focus.
+      setTimeout(() => {
+        if (!touching.current) return
+        setFocused({
+          value: item.value!,
+          date: item.date ?? item.label ?? '',
+        })
+      }, 0)
     }
     return null
+  }, [])
+  const handleTouchStart = useCallback(() => {
+    touching.current = true
+  }, [])
+  const handleTouchEnd = useCallback(() => {
+    touching.current = false
+    setFocused(null)
   }, [])
 
   const latestValue = values.at(-1) ?? 0
@@ -102,7 +110,11 @@ export const YieldChart = memo(function YieldChart({
 
   return (
     <Card>
-      <Viewport onTouchEnd={() => setFocused(null)}>
+      <Viewport
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+      >
         <Header pointerEvents="none">
           <HeaderValue>
             {formatNumber(display.value)}
