@@ -83,7 +83,6 @@ export function CurrencyPickerModal({
                 placeholderTextColor={colors.textSubtle}
                 autoCorrect={false}
                 autoCapitalize="none"
-                autoFocus
                 returnKeyType="search"
                 accessibilityLabel="Search currencies"
               />
