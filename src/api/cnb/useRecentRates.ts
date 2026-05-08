@@ -1,40 +1,41 @@
-import { useMemo } from 'react'
-import { useQueries } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
+import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 
-import type { CnbDailyFixing } from './types'
+import { calendarDaysFor } from './client'
 import { dailyAtQueryOptions, recentCnbDates } from './queries'
+import type { CnbDailyFixing } from './types'
 
 export function useRecentRates(businessDays: number = 30) {
-  const calendarDays = Math.ceil(businessDays * 1.6) + 3
+  const calendarDays = calendarDaysFor(businessDays)
   const dates = useMemo(() => recentCnbDates(calendarDays), [calendarDays])
 
-  const results = useQueries({
+  const combine = useCallback(
+    (results: UseQueryResult<CnbDailyFixing>[]) => {
+      const byDate = new Map<string, CnbDailyFixing>()
+      for (const result of results) {
+        if (result.data) byDate.set(result.data.date, result.data)
+      }
+      const data = Array.from(byDate.values())
+        .sort((left, right) => left.date.localeCompare(right.date))
+        .slice(-businessDays)
+      const firstError = results.find(result => result.isError)?.error
+      return {
+        data,
+        error: firstError,
+        isError: Boolean(firstError) && data.length === 0,
+        isFetching: results.some(result => result.isFetching),
+        isLoading:
+          data.length === 0 && results.some(result => result.isLoading),
+        isPending:
+          data.length === 0 && results.some(result => result.isPending),
+        isPlaceholderData: false,
+      }
+    },
+    [businessDays],
+  )
+
+  return useQueries({
     queries: dates.map(dailyAtQueryOptions),
+    combine,
   })
-
-  const dataKey = results
-    .map(result => result.data?.date ?? '')
-    .filter(Boolean)
-    .join('|')
-  const data = useMemo(() => {
-    const byDate = new Map<string, CnbDailyFixing>()
-    for (const result of results) {
-      if (result.data) byDate.set(result.data.date, result.data)
-    }
-    return Array.from(byDate.values())
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-businessDays)
-  }, [businessDays, dataKey])
-
-  const firstError = results.find(r => r.isError)?.error
-
-  return {
-    data,
-    error: firstError,
-    isError: Boolean(firstError) && data.length === 0,
-    isFetching: results.some(r => r.isFetching),
-    isLoading: data.length === 0 && results.some(r => r.isLoading),
-    isPending: data.length === 0 && results.some(r => r.isPending),
-    isPlaceholderData: false,
-  }
 }
