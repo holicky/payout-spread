@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import {
   calculatorReducer,
@@ -27,28 +27,27 @@ export function useCalculator({
   initialValue: string
   onChange: (value: string) => void
 }): CalculatorControls {
-  const [, setState] = useState<CalculatorState>(INITIAL_STATE)
+  // Held in a ref because the keypad UI never reads calculator state — only
+  // dispatches actions. Storing in useState forced onChange into a setState
+  // updater, which React flags as updating a parent during a child's render.
+  const stateRef = useRef<CalculatorState>(INITIAL_STATE)
 
   const initialValueRef = useRef(initialValue)
   initialValueRef.current = initialValue
 
   useEffect(() => {
     if (!open) return
-    setState(
-      calculatorReducer(INITIAL_STATE, {
-        type: 'seed',
-        value: initialValueRef.current,
-      }),
-    )
+    stateRef.current = calculatorReducer(INITIAL_STATE, {
+      type: 'seed',
+      value: initialValueRef.current,
+    })
   }, [open])
 
   const dispatch = useCallback(
     (action: CalculatorAction) => {
-      setState(prev => {
-        const next = calculatorReducer(prev, action)
-        onChange(action.type === 'equals' ? next.display : expressionFor(next))
-        return next
-      })
+      const next = calculatorReducer(stateRef.current, action)
+      stateRef.current = next
+      onChange(action.type === 'equals' ? next.display : expressionFor(next))
     },
     [onChange],
   )
