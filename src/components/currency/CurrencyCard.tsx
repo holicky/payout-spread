@@ -47,7 +47,7 @@ export function CurrencyCard({
   return (
     <Card testID={testID}>
       <HapticPressable
-        testID={currencyTestID ?? (testID ? `${testID}.currency` : undefined)}
+        testID={currencyTestID}
         onPress={onCurrencyPress}
         accessibilityLabel={`Selected currency: ${code}. Tap to change.`}
         style={leftStyle}
@@ -59,7 +59,7 @@ export function CurrencyCard({
 
       {onAmountPress ? (
         <HapticPressable
-          testID={amountTestID ?? (testID ? `${testID}.amount` : undefined)}
+          testID={amountTestID}
           onPress={onAmountPress}
           accessibilityLabel={`Amount ${amount || '0'}. Tap to edit.`}
           style={amountTouchStyle}
@@ -68,7 +68,7 @@ export function CurrencyCard({
         </HapticPressable>
       ) : (
         <Right
-          testID={amountTestID ?? (testID ? `${testID}.amount` : undefined)}
+          testID={amountTestID}
         >
           <AmountText>{amount || '0'}</AmountText>
           {rateLine ? <RateLine>{rateLine}</RateLine> : null}
