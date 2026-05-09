@@ -46,26 +46,25 @@ export function CurrencyCard({
 
   return (
     <Card testID={testID}>
-      <HapticPressable
+      <CurrencyButton
         testID={currencyTestID}
         onPress={onCurrencyPress}
         accessibilityLabel={`Selected currency: ${code}. Tap to change.`}
-        style={leftStyle}
       >
         <CurrencyFlag code={code} size={28} />
         <Code>{code}</Code>
         <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
-      </HapticPressable>
+      </CurrencyButton>
 
       {onAmountPress ? (
-        <HapticPressable
+        <AmountButton
           testID={amountTestID}
           onPress={onAmountPress}
           accessibilityLabel={`Amount ${amount || '0'}. Tap to edit.`}
-          style={amountTouchStyle}
         >
           <AmountText>{amount || '0'}</AmountText>
-        </HapticPressable>
+          {rateLine ? <RateLine>{rateLine}</RateLine> : null}
+        </AmountButton>
       ) : (
         <Right testID={amountTestID}>
           <AmountText>{amount || '0'}</AmountText>
@@ -76,17 +75,18 @@ export function CurrencyCard({
   )
 }
 
-const leftStyle = {
-  flexDirection: 'row' as const,
-  alignItems: 'center' as const,
-  gap: 10,
-}
+const CurrencyButton = styled(HapticPressable)`
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+`
 
-const amountTouchStyle = {
-  flex: 1,
-  marginLeft: spacing.md,
-  paddingVertical: 6,
-}
+const AmountButton = styled(HapticPressable)`
+  flex: 1;
+  margin-left: ${spacing.md}px;
+  padding-vertical: 6px;
+  align-items: flex-end;
+`
 
 const Card = styled.View`
   flex-direction: row;

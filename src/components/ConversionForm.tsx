@@ -8,7 +8,11 @@ import { convertCurrency } from '../lib/convert'
 import { selectRate } from '../lib/select-rate'
 import { formatNumber } from '../lib/format'
 import { TEST_IDS } from '../lib/testIds'
-import { useConversionStore, useEvaluatedAmount } from '../state/conversion'
+import {
+  type EditingSide,
+  useConversionStore,
+  useEvaluatedAmount,
+} from '../state/conversion'
 import { colors, radii, spacing, topEdgeShadow } from '../theme'
 import { CalculatorKeypad } from './calculator/CalculatorKeypad'
 import { CurrencyCard } from './currency/CurrencyCard'
@@ -26,8 +30,10 @@ export function ConversionForm() {
   const targetCode = useConversionStore(state => state.targetCode)
   const setSourceCode = useConversionStore(state => state.setSourceCode)
   const setTargetCode = useConversionStore(state => state.setTargetCode)
+  const editingSide = useConversionStore(state => state.editingSide)
+  const setEditingSide = useConversionStore(state => state.setEditingSide)
   const swap = useConversionStore(state => state.swap)
-  const sourceAmount = useEvaluatedAmount()
+  const typedAmount = useEvaluatedAmount()
 
   const [pickerSide, setPickerSide] = useState<PickerSide>(null)
   const [keypadOpen, setKeypadOpen] = useState(false)
@@ -38,15 +44,30 @@ export function ConversionForm() {
 
   if (!sourceRate || !targetRate) return null
 
-  const targetAmount =
-    sourceAmount == null
-      ? null
-      : convertCurrency(sourceAmount, sourceRate, targetRate)
+  const editingSource = editingSide === 'source'
+  const fromRate = editingSource ? sourceRate : targetRate
+  const toRate = editingSource ? targetRate : sourceRate
+  const derivedAmount =
+    typedAmount == null ? null : convertCurrency(typedAmount, fromRate, toRate)
+
+  const sourceAmount = editingSource ? typedAmount : derivedAmount
+  const targetAmount = editingSource ? derivedAmount : typedAmount
+
   const perOne = convertCurrency(1, sourceRate, targetRate)
   const rateLine = `1 ${sourceCode} = ${perOne.toFixed(4)} ${targetCode}`
 
   const sourceDisplay =
-    keypadOpen || sourceAmount == null ? amount : formatNumber(sourceAmount)
+    keypadOpen && editingSource ? amount : formatSide(sourceAmount)
+  const targetDisplay =
+    keypadOpen && !editingSource ? amount : formatSide(targetAmount)
+
+  const editSide = (side: EditingSide) => {
+    if (editingSide !== side) {
+      setAmount(seedString(side === 'source' ? sourceAmount : targetAmount))
+      setEditingSide(side)
+    }
+    setKeypadOpen(true)
+  }
 
   return (
     <>
@@ -56,7 +77,7 @@ export function ConversionForm() {
         code={sourceCode}
         amount={sourceDisplay}
         onCurrencyPress={() => setPickerSide('source')}
-        onAmountPress={() => setKeypadOpen(true)}
+        onAmountPress={() => editSide('source')}
       />
 
       <SwapRow>
@@ -74,9 +95,10 @@ export function ConversionForm() {
         currencyTestID={TEST_IDS.converter.targetCurrency}
         amountTestID={TEST_IDS.converter.targetAmount}
         code={targetCode}
-        amount={targetAmount == null ? '—' : formatNumber(targetAmount)}
+        amount={targetDisplay}
         rateLine={rateLine}
         onCurrencyPress={() => setPickerSide('target')}
+        onAmountPress={() => editSide('target')}
       />
 
       {pickerSide ? (
@@ -104,6 +126,14 @@ export function ConversionForm() {
     </>
   )
 }
+
+const formatSide = (value: number | null): string =>
+  value == null ? '—' : formatNumber(value)
+
+const seedString = (value: number | null): string =>
+  value != null && Number.isFinite(value)
+    ? String(Math.round(value * 10000) / 10000)
+    : ''
 
 const Attribution = styled.Text`
   margin-top: ${spacing.sm}px;

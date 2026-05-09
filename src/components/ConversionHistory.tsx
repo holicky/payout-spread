@@ -2,11 +2,20 @@ import { useMemo, useState } from 'react'
 import { useWindowDimensions, View } from 'react-native'
 import styled from 'styled-components/native'
 
+import type { CurrencyRate } from '../api/cnb/types'
+import { useDailyRates } from '../api/cnb/useDailyRates'
 import { useRecentRates } from '../api/cnb/useRecentRates'
+import { useRatesWithCZK } from '../hooks/useRatesWithCZK'
+import { convertCurrency } from '../lib/convert'
 import { formatNumber } from '../lib/format'
+import { selectRate } from '../lib/select-rate'
 import { buildSeries } from '../lib/series'
 import { TEST_IDS } from '../lib/testIds'
-import { useConversionStore, useEvaluatedAmount } from '../state/conversion'
+import {
+  type EditingSide,
+  useConversionStore,
+  useEvaluatedAmount,
+} from '../state/conversion'
 import { colors, radii, spacing } from '../theme'
 import { YieldChart } from './YieldChart'
 import { PeriodSelector } from './PeriodSelector'
@@ -18,10 +27,22 @@ const DEFAULT_PERIOD_DAYS = 22
 export function ConversionHistory() {
   const [days, setDays] = useState<number>(DEFAULT_PERIOD_DAYS)
   const { data, isLoading, isError, isPlaceholderData } = useRecentRates(days)
+  const { data: latestFixing } = useDailyRates()
   const { width } = useWindowDimensions()
   const sourceCode = useConversionStore(state => state.sourceCode)
   const targetCode = useConversionStore(state => state.targetCode)
-  const sourceAmount = useEvaluatedAmount()
+  const editingSide = useConversionStore(state => state.editingSide)
+  const typedAmount = useEvaluatedAmount()
+
+  const ratesWithCZK = useRatesWithCZK(latestFixing)
+  const sourceRate = selectRate(ratesWithCZK, sourceCode, 'CZK')
+  const targetRate = selectRate(ratesWithCZK, targetCode, 'USD')
+  const sourceAmount = resolveSourceAmount({
+    typed: typedAmount,
+    side: editingSide,
+    sourceRate,
+    targetRate,
+  })
 
   const series = useMemo(
     () =>
@@ -81,6 +102,23 @@ export function ConversionHistory() {
       {isPlaceholderData ? <StatsCardSkeleton /> : <StatsCard items={stats} />}
     </Wrap>
   )
+}
+
+const resolveSourceAmount = ({
+  typed,
+  side,
+  sourceRate,
+  targetRate,
+}: {
+  typed: number | null
+  side: EditingSide
+  sourceRate: CurrencyRate | undefined
+  targetRate: CurrencyRate | undefined
+}): number | null => {
+  if (typed == null) return null
+  if (side === 'source') return typed
+  if (!sourceRate || !targetRate) return null
+  return convertCurrency(typed, targetRate, sourceRate)
 }
 
 const Wrap = styled.View``
