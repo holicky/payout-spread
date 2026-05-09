@@ -37,15 +37,18 @@ yarn               # install
 yarn ios           # dev loop via Expo Go (iOS Simulator)
 yarn android       # dev loop via Expo Go (Android emulator)
 
-yarn ios:build     # native build on iOS Simulator (requires Xcode, no Expo Go)
-yarn android:build # native build on Android emulator/device (requires Android Studio)
+yarn ios:build     # debug native build on iOS Simulator (requires Xcode, no Expo Go)
+yarn android:build # debug native build on Android emulator/device (requires Android Studio)
+
+yarn ios:release     # standalone release build on iOS Simulator (JS bundled in, no Metro)
+yarn android:release # standalone release build on Android (JS bundled in, no Metro)
 
 yarn typecheck     # tsc --noEmit
 yarn test          # jest
 yarn format        # prettier --write .
 ```
 
-`yarn ios` / `yarn android` use Expo Go on the device — fastest dev loop. `yarn ios:build` / `yarn android:build` generate native projects via `expo prebuild` and install a real native binary (custom icon, no Expo Go wrapper); slower first build.
+`yarn ios` / `yarn android` use Expo Go — fastest dev loop. The `:build` variants install a real native binary that still talks to Metro for hot reload. The `:release` variants bake the JS bundle into the binary at build time, so the app runs fully standalone (no dev server, no Expo Go) — closest to what an App Store install would behave like.
 
 The app loads CNB data on first launch — an internet connection is needed for the initial fetch.
 
