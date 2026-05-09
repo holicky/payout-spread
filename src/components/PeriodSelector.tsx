@@ -8,7 +8,7 @@ export const PERIODS = [
   { label: '1W', days: 7 },
   { label: '1M', days: 22 },
   { label: '3M', days: 60 },
-  { label: '6M', days: 90 },
+  { label: '6M', days: 126 },
 ] as const
 
 type Props = {

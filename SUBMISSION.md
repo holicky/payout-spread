@@ -11,7 +11,7 @@ A short personal note before the checklist, because the brief leaves a lot of ro
 **Where I spent the most time.** Not on the code per se — on making sure the app feels like a thing someone would actually use. That meant:
 
 - A converter that behaves the way Wise / Revolut / Xe behave (live updates, swap direction, calculator-style entry) instead of a literal-but-clumsy form.
-- A bonus screen that tells the user something they couldn't compute themselves from the rate list — "if you'd received this payment last Tuesday, you'd have X more CZK."
+- A bonus surface (split across two tabs) that tells the user something they couldn't compute from the rate list themselves: a yield chart on Converter showing how recent rate movements would have changed the payout, and a "best weekday / best part of month" pattern detector on Conversion Timing — with confidence labels that are honest about how strong (or weak) the signal really is.
 - Small native touches (haptics on key actions, pull-to-refresh, AsyncStorage-backed cold start, edge-to-edge on Android) so the app doesn't read as a web form pasted into a phone.
 - Copy and number formatting that takes the user seriously — Czech-style separators where appropriate, plain-language insights, no jargon.
 
@@ -37,16 +37,19 @@ A short personal note before the checklist, because the brief leaves a lot of ro
 | GitHub repo | ✅ | This repository |
 | Bonus feature | ✅ | **Conversion Timing** screen (separate tab) |
 
-## Bonus: Conversion Timing
+## Bonus: Conversion Timing tab + Converter yield chart
 
-A third screen that answers a different question than the converter: **"if I have a foreign payment coming in, when would I have gotten the most CZK for it recently?"**
+The brief asks for a converter and a "more screens" bonus. The bonus came in two pieces, on two tabs, both feeding off the same yearly CNB data.
 
-- Fetches a window of recent CNB fixings via a single aggregate query.
-- Shows the CZK yield for the user's amount over that window as a chart.
-- Highlights best/worst day and the gap between them in absolute CZK.
-- Frames the insight as descriptive, not predictive — the screen is about understanding past spread, not forecasting.
+**Conversion Timing tab** answers: *"if I do one conversion per week, which weekday tends to give me the best rate?"*
 
-Why this and not, say, dark mode: the brief explicitly excludes light/dark mode as a bonus. Conversion Timing reuses the existing converter state (amount + currency pair) and turns it into something the user couldn't compute themselves from the Today screen, which felt like a stronger product story than a cosmetic toggle.
+- For each week in the last business year, picks the day with the highest CZK / foreign rate, and tallies which weekday "wins" most often. Same logic for month-thirds (early / mid / late).
+- Tests the mode against a uniform-chance multinomial via Monte Carlo (1000 iterations) and labels the result `high` / `medium` / `low` confidence based on the p-value.
+- Loose default: always surfaces the pattern but flags weak signal honestly. For major-pair CZK rates the badge will usually be `low`. The choice was deliberate — show the data and label its weakness rather than gate it out and leave a blank screen, which is what a stricter `p < 0.05` filter would do.
+
+**Converter yield chart** sits below the conversion form. It shows how the same conversion would have performed over a selectable window (1W / 1M / 3M / 6M), with a stats card highlighting period high / low / change.
+
+Why these and not, say, dark mode: the brief explicitly excludes light/dark mode as a bonus. Both bonus surfaces reuse the existing converter state (amount + currency pair) and turn it into something the user couldn't compute themselves from the Today screen, which felt like a stronger product story than a cosmetic toggle.
 
 ## Decision log
 
@@ -71,8 +74,13 @@ v6 ships its own types. The legacy `@types/styled-components*` packages target v
 ### Jest pinned to 29
 `jest-expo@54` doesn't yet support Jest 30. Pinning avoids transform errors during test runs.
 
-### Aggregate query on the Timing screen
-A single historical CNB request rather than N daily fetches — keeps render churn low and the network footprint small while showing the full window.
+### Yearly endpoint for all recent-rates consumers
+Both the Insights tab (one full business year — 252 days) and the Converter history chart (1W to 6M) source data from CNB's `year.txt` endpoint, cached per-year in React Query. The longest window costs 1 request (or 2 across a year boundary) instead of ~50 daily round-trips, and the per-year cache is shared across screens. The daily endpoint is still used for the Today screen and the picker, where country and currency-name labels matter.
+
+### Insights methodology — mode of weekly winners with multinomial-max significance test
+First pass averaged rates per weekday and picked the argmax. That's the standard naive approach and it's noisy: the "winner" flipped between Mon and Wed just by extending the data window from 90 to 252 days, because there isn't a real weekday effect on liquid CZK pairs to begin with. Replaced with: group fixings by week → pick the day with the highest rate in each week → take the mode of those winners. Same pattern for month-thirds.
+
+Significance is then estimated by simulating the multinomial-max distribution under the uniform-chance null (each weekday has 1/5 chance of being the weekly winner). The resulting p-value drives a `high` / `medium` / `low` confidence badge. The screen ships with a loose default — it always surfaces the mode and lets the badge carry the caveat — because a strict `p < 0.05` gate would leave the screen blank for almost all major-pair CZK conversions, which is technically correct but useless. A strict-gate mode (`pValueThreshold: 0.05`) is available per-call where empty-when-noise is the desired behaviour.
 
 ### React Query persistence to AsyncStorage
 Cold starts show the last-known rates immediately, before the network round trip resolves. Cheap to add, noticeably better first-paint.

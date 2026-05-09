@@ -1,9 +1,13 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { CNBParseError, parseCNBDaily } from './parser'
+import { CNBParseError, parseCNBDaily, parseCNBYear } from './parser'
 
 const realFixture = readFileSync(
   join(__dirname, '__fixtures__', 'cnb-2026-05-06.txt'),
+  'utf-8',
+)
+const realYearFixture = readFileSync(
+  join(__dirname, '__fixtures__', 'cnb-year-2026.txt'),
   'utf-8',
 )
 
@@ -173,5 +177,117 @@ describe('parseCNBDaily', () => {
       const result = parseCNBDaily(input)
       expect(result.rates).toHaveLength(1)
     })
+  })
+})
+
+describe('parseCNBYear', () => {
+  it('parses yearly rows into daily fixings using header currency specs', () => {
+    const result = parseCNBYear(
+      [
+        'Date|1 AUD|100 JPY|1 USD',
+        '02.01.2026|14.100|13.249|20.700',
+        '05.01.2026|14.200|13.300|20.800',
+      ].join('\n'),
+    )
+
+    expect(result).toEqual([
+      {
+        date: '2026-01-02',
+        sequenceNumber: 1,
+        rates: [
+          {
+            country: '',
+            currencyName: 'AUD',
+            amount: 1,
+            code: 'AUD',
+            rate: 14.1,
+          },
+          {
+            country: '',
+            currencyName: 'JPY',
+            amount: 100,
+            code: 'JPY',
+            rate: 13.249,
+          },
+          {
+            country: '',
+            currencyName: 'USD',
+            amount: 1,
+            code: 'USD',
+            rate: 20.7,
+          },
+        ],
+      },
+      {
+        date: '2026-01-05',
+        sequenceNumber: 2,
+        rates: [
+          {
+            country: '',
+            currencyName: 'AUD',
+            amount: 1,
+            code: 'AUD',
+            rate: 14.2,
+          },
+          {
+            country: '',
+            currencyName: 'JPY',
+            amount: 100,
+            code: 'JPY',
+            rate: 13.3,
+          },
+          {
+            country: '',
+            currencyName: 'USD',
+            amount: 1,
+            code: 'USD',
+            rate: 20.8,
+          },
+        ],
+      },
+    ])
+  })
+
+  it('accepts a repeated header when CNB changes the yearly structure', () => {
+    const result = parseCNBYear(
+      [
+        'Date|1 USD',
+        '02.01.2026|20.700',
+        'Date|1 USD|1 EUR',
+        '05.01.2026|20.800|25.100',
+      ].join('\n'),
+    )
+
+    expect(result).toHaveLength(2)
+    expect(result[0].rates.map(rate => rate.code)).toEqual(['USD'])
+    expect(result[1].rates.map(rate => rate.code)).toEqual(['USD', 'EUR'])
+  })
+
+  it('parses a captured real CNB year.txt fixture', () => {
+    const result = parseCNBYear(realYearFixture)
+
+    expect(result.length).toBeGreaterThan(80)
+    const firstFixing = result[0]
+    expect(firstFixing.date).toBe('2026-01-02')
+
+    const usd = firstFixing.rates.find(rate => rate.code === 'USD')
+    const jpy = firstFixing.rates.find(rate => rate.code === 'JPY')
+    const eur = firstFixing.rates.find(rate => rate.code === 'EUR')
+    expect(usd).toMatchObject({ amount: 1, rate: 20.611 })
+    expect(jpy).toMatchObject({ amount: 100, rate: 13.141 })
+    expect(eur).toMatchObject({ amount: 1, rate: 24.17 })
+  })
+
+  it('throws on malformed yearly input', () => {
+    expect(() => parseCNBYear('')).toThrow(CNBParseError)
+    expect(() => parseCNBYear('Date|USD\n02.01.2026|20.700')).toThrow(
+      /malformed currency spec/,
+    )
+    expect(() => parseCNBYear('Date|1 USD\n2026-01-02|20.700')).toThrow(
+      /malformed date/,
+    )
+    expect(() => parseCNBYear('Date|1 USD\n02.01.2026|bad')).toThrow(
+      /invalid rate/,
+    )
   })
 })

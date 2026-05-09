@@ -2,18 +2,27 @@ import { useCallback, useMemo } from 'react'
 import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 
 import { calendarDaysFor } from './client'
-import { dailyAtQueryOptions, recentCNBDates } from './queries'
+import { recentCNBDates, yearlyQueryOptions } from './queries'
 import type { CNBDailyFixing } from './types'
 
 export function useRecentRates(businessDays: number = 30) {
   const calendarDays = calendarDaysFor(businessDays)
   const dates = useMemo(() => recentCNBDates(calendarDays), [calendarDays])
+  const years = useMemo(
+    () =>
+      Array.from(new Set(dates.map(date => date.getFullYear()))).sort(
+        (left, right) => left - right,
+      ),
+    [dates],
+  )
 
   const combine = useCallback(
-    (results: UseQueryResult<CNBDailyFixing>[]) => {
+    (results: UseQueryResult<CNBDailyFixing[]>[]) => {
       const byDate = new Map<string, CNBDailyFixing>()
       for (const result of results) {
-        if (result.data) byDate.set(result.data.date, result.data)
+        for (const fixing of result.data ?? []) {
+          byDate.set(fixing.date, fixing)
+        }
       }
       const data = Array.from(byDate.values())
         .sort((left, right) => left.date.localeCompare(right.date))
@@ -35,7 +44,7 @@ export function useRecentRates(businessDays: number = 30) {
   )
 
   return useQueries({
-    queries: dates.map(dailyAtQueryOptions),
+    queries: years.map(yearlyQueryOptions),
     combine,
   })
 }

@@ -23,8 +23,8 @@ Built with Expo SDK 54, React Native 0.81 and React 19.
 ## Features
 
 - **Today** — pull-to-refresh list of CNB fixings for the current business day. Pick any currency (including CZK) as the reference and every other rate restates against it.
-- **Converter** — calculator-style amount entry with a currency picker on each side. Defaults to the assignment's CZK → foreign flow but works in either direction. Recent conversions are kept locally for quick reuse.
-- **Conversion Timing** — bonus screen that charts CZK yield for a fixed foreign amount over a recent window, highlights the best/worst day, and surfaces a short insight ("you'd get X more CZK if you'd waited until …").
+- **Converter** — calculator-style amount entry with a currency picker on each side. Defaults to the assignment's CZK → foreign flow but works in either direction. Recent conversions are kept locally for quick reuse. Below the form, a yield chart shows how the same conversion would have performed over selectable windows (1W / 1M / 3M / 6M) with period high/low/change stats.
+- **Conversion Timing** — bonus tab. Over the last business year of CNB fixings, finds the weekday that delivered the best rate in the most weeks and the part of month (early / mid / late) that won the most months. A confidence label (high / medium / low) tells you whether the pattern actually beats chance — for major liquid CZK pairs it'll usually say "low", which is the honest answer.
 - **Offline-friendly** — React Query state is persisted to AsyncStorage so the last-known rates are available immediately on cold start.
 - **Native feel** — haptic feedback on key actions, safe-area aware layout, edge-to-edge on Android, light theme tuned for legibility.
 
@@ -78,7 +78,8 @@ src/
 - **React Navigation, not Expo Router.** The assignment specifies React Navigation; bottom tabs map naturally to the three screens.
 - **Two state layers, by purpose.** React Query owns server state (fetching, caching, retries, persistence). Zustand owns the small amount of cross-screen UI state (selected currencies, current amount) that needs to stay in sync between Today, Converter, and Timing.
 - **Pure logic in `lib/`.** Conversion math, insight builders, picker section grouping, and CNB parsing are plain functions with focused unit tests — no React, no mocks, fast feedback.
-- **Aggregate query for Timing.** The Timing screen uses a single aggregate historical CNB request rather than N daily fetches, which keeps render churn and network cost low across the date window.
+- **Yearly endpoint for recent rates.** The Insights tab (one full business year, 252 days) and the Converter chart (1W to 6M) both read from CNB's `year.txt` aggregate via a per-year React Query cache, so the entire history view costs 1–2 requests instead of N daily round-trips. The daily endpoint is still used on the Today screen and the picker, where country / currency-name labels matter.
+- **Insights — mode of weekly winners, not bucket means.** "Best day of week" doesn't average rates per weekday (noisy and easily flipped by window choice on liquid pairs). It groups fixings by week, picks the day with the highest rate in each week, and takes the mode of those winners. The mode count is scored against a uniform-chance multinomial via Monte Carlo, and the resulting p-value drives a `high` / `medium` / `low` confidence badge. The default surfaces the pattern even when weak and lets confidence carry the caveat; a strict-gate mode (`pValueThreshold: 0.05`) is available per-call.
 - **Jest pinned to 29.** `jest-expo@54` doesn't yet support Jest 30 — pinning avoids transform errors during test runs.
 - **`styled-components` v6 only.** v6 ships its own types, so the legacy `@types/styled-components*` packages were removed to avoid type conflicts.
 
@@ -98,6 +99,6 @@ React Navigation flows are exercised manually rather than under Jest.
 ## Submission notes
 
 - The Converter opens in the assignment's requested CZK → foreign flow by default (`CZK → USD`) and supports bidirectional conversion thereafter.
-- Conversion Timing is the bonus screen. It uses an aggregate historical CNB query and visualises CZK yield rather than the raw rate, since "what would I have actually received" is the question the screen exists to answer.
+- Conversion Timing is a bonus tab. It surfaces "best weekday" and "best part of month" patterns over a year of CNB data, with confidence labels driven by a multinomial-max significance test against the uniform-chance baseline. The Converter screen also picked up a bonus yield chart (1W–6M with period stats).
 
 For the full requirements checklist, decision log, scope caveats, and instructions for generating native projects, see [SUBMISSION.md](./SUBMISSION.md).

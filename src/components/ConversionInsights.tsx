@@ -8,7 +8,7 @@ import { colors, spacing } from '../theme'
 import { Disclaimer } from './Disclaimer'
 import { InsightCard } from './InsightCard'
 
-const INSIGHTS_WINDOW_DAYS = 90
+const INSIGHTS_WINDOW_DAYS = 252
 const INSIGHTS_MIN_SAMPLES = 60
 
 export function ConversionInsights() {
@@ -48,7 +48,6 @@ export function ConversionInsights() {
   }
 
   if (!weekdayInsight && !monthPartInsight) return null
-  const sampleSize = samples
 
   return (
     <>
@@ -58,7 +57,7 @@ export function ConversionInsights() {
           <InsightCard
             icon="calendar-outline"
             headline={weekdayInsight.weekdayName}
-            detail={`${signed(weekdayInsight.advantagePercent)}% vs average · ${weekdayInsight.sampleSize} samples`}
+            detail={`Best rate in ${weekdayInsight.winCount} of ${weekdayInsight.weeksConsidered} weeks · ${pct(weekdayInsight.winRate)} (random ${pct(weekdayInsight.baselineRate)})`}
             confidence={weekdayInsight.confidence}
           />
         </>
@@ -70,7 +69,7 @@ export function ConversionInsights() {
           <InsightCard
             icon="calendar-number-outline"
             headline={monthPartInsight.partLabel}
-            detail={`${signed(monthPartInsight.advantagePercent)}% vs average · ${monthPartInsight.sampleSize} samples`}
+            detail={`Best rate in ${monthPartInsight.winCount} of ${monthPartInsight.monthsConsidered} months · ${pct(monthPartInsight.winRate)} (random ${pct(monthPartInsight.baselineRate)})`}
             confidence={monthPartInsight.confidence}
           />
         </>
@@ -78,16 +77,16 @@ export function ConversionInsights() {
 
       <Gap />
       <Disclaimer>
-        Insights are derived from a limited historical window ({sampleSize}{' '}
-        business days) and are not financial advice. Past patterns do not
+        Insights compare each week (or month) and count how often a given
+        weekday or part of month delivered the best rate. Past patterns do not
         predict future rates.
       </Disclaimer>
     </>
   )
 }
 
-function signed(value: number): string {
-  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}`
+function pct(value: number): string {
+  return `${Math.round(value * 100)}%`
 }
 
 const SectionTitle = styled.Text`

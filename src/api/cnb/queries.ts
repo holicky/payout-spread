@@ -1,6 +1,11 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import { CNBFetchError, fetchDailyRatesAt, formatCNBDate } from './client'
+import {
+  CNBFetchError,
+  fetchDailyRatesAt,
+  fetchYearRates,
+  formatCNBDate,
+} from './client'
 import { CNBParseError } from './parser'
 
 const CNB_PUBLISH_HOUR = 14
@@ -9,11 +14,23 @@ const CNB_PUBLISH_MINUTE = 35
 export const dailyAtQueryKey = (date: Date) =>
   ['cnb', 'dailyAt', formatCNBDate(date)] as const
 
+export const yearlyQueryKey = (year: number) => ['cnb', 'year', year] as const
+
 export function dailyAtQueryOptions(date: Date) {
   return queryOptions({
     queryKey: dailyAtQueryKey(date),
     queryFn: ({ signal }) => fetchDailyRatesAt(date, signal),
     staleTime: isToday(date) ? msUntilNextCNBPublish() : Infinity,
+    gcTime: 24 * 60 * 60 * 1000,
+  })
+}
+
+export function yearlyQueryOptions(year: number) {
+  return queryOptions({
+    queryKey: yearlyQueryKey(year),
+    queryFn: ({ signal }) => fetchYearRates(year, signal),
+    staleTime:
+      year === new Date().getFullYear() ? msUntilNextCNBPublish() : Infinity,
     gcTime: 24 * 60 * 60 * 1000,
   })
 }

@@ -1,8 +1,10 @@
-import { parseCNBDaily } from './parser'
+import { parseCNBDaily, parseCNBYear } from './parser'
 import type { CNBDailyFixing } from './types'
 
 const CNB_DAILY_URL =
   'https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/daily.txt'
+const CNB_YEAR_URL =
+  'https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/year.txt'
 const REQUEST_TIMEOUT_MS = 15_000
 const MAX_PARALLEL_CNB_REQUESTS = 6
 
@@ -25,6 +27,19 @@ export async function fetchDailyRatesAt(
 ): Promise<CNBDailyFixing> {
   const url = `${CNB_DAILY_URL}?date=${formatCNBDate(date)}`
   return fetchAt(url, signal)
+}
+
+export async function fetchYearRates(
+  year: number,
+  signal?: AbortSignal,
+): Promise<CNBDailyFixing[]> {
+  const url = `${CNB_YEAR_URL}?year=${year}`
+  const res = await withCNBRequestSlot(() => fetchWithTimeout(url, signal))
+  if (!res.ok) {
+    throw new CNBFetchError(`HTTP ${res.status}`, res.status)
+  }
+  const body = await res.text()
+  return parseCNBYear(body)
 }
 
 async function fetchAt(
