@@ -94,9 +94,7 @@ Unit tests cover parsing, conversion math, calculator state, chart series, insig
 - **No i18n.** Single-locale (Czech-style number formatting where appropriate, English UI copy). Adding `i18next` is straightforward but wasn't part of the brief.
 - **No e2e tests.** Detox/Maestro would be the right tool but oversized for a take-home; the unit tests cover the logic that matters most.
 - **No analytics or error reporting.** Sentry/PostHog would be the production move; adding them would have been noise here.
-- **No CI workflow checked in.** `yarn typecheck` and `yarn test` are the local gates; wiring up GitHub Actions felt like ceremony for a single-author repo.
-- **Phone-only verification.** `app.json` declares `supportsTablet: true`, but layout was only tested on phone form-factors (iPhone simulator + Android emulator at standard resolutions). Tablet/foldable layouts haven't been exercised and may need spacing tweaks.
-- **Stock Expo graphics.** The icon, splash, adaptive icon, and favicon under `assets/` are the default Expo placeholders. Designing custom branding (logo, icon set, splash artwork, screenshot frames) is a design exercise outside the scope of this brief.
+- **Phone-only verification.** `app.json` sets `supportsTablet: false` — layout was tested on phone form-factors (iPhone simulator + Android emulator at standard resolutions) and tablet/foldable layouts were intentionally not in scope.
 
 ## Native projects (iOS / Android folders)
 
