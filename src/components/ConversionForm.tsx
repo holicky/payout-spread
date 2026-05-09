@@ -127,8 +127,8 @@ const SwapButton = styled(HapticPressable)`
   align-items: center;
   justify-content: center;
   shadow-color: ${topEdgeShadow.shadowColor};
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.12;
-  shadow-radius: 4px;
-  elevation: 3;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.06;
+  shadow-radius: 2px;
+  elevation: 1;
 `
