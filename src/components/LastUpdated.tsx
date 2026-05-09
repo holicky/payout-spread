@@ -5,7 +5,7 @@ import styled from 'styled-components/native'
 
 import { formatLongDate } from '../lib/format'
 import { relativeTime } from '../lib/relative-time'
-import { colors, spacing, touch } from '../theme'
+import { colors, radii, spacing, topEdgeShadow } from '../theme'
 import { HapticPressable } from './HapticPressable'
 
 type Props = {
@@ -68,9 +68,10 @@ export const LastUpdated = memo(function LastUpdated({
           accessibilityLabel="Refresh rates"
           accessibilityState={{ busy: !!isRefreshing }}
           haptic="light"
+          hitSlop={8}
         >
           <Spinner spinning={!!isRefreshing}>
-            <Ionicons name="refresh" size={16} color={colors.accent} />
+            <Ionicons name="refresh" size={14} color={colors.surface} />
           </Spinner>
         </RefreshButton>
       ) : null}
@@ -137,8 +138,15 @@ const Detail = styled.Text`
 `
 
 const RefreshButton = styled(HapticPressable)`
-  min-width: ${touch.minTarget}px;
-  min-height: ${touch.minTarget}px;
+  width: 28px;
+  height: 28px;
+  border-radius: ${radii.pill}px;
+  background-color: ${colors.accent};
   align-items: center;
   justify-content: center;
+  shadow-color: ${topEdgeShadow.shadowColor};
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.06;
+  shadow-radius: 2px;
+  elevation: 1;
 `
