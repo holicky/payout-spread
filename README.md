@@ -34,18 +34,15 @@ Requires **Node 22** (see `.nvmrc`) and Yarn.
 
 ```sh
 yarn               # install
-yarn ios           # dev loop via Expo Go (iOS Simulator)
-yarn android       # dev loop via Expo Go (Android emulator)
-
-yarn ios:build     # native build on iOS Simulator (requires Xcode, no Expo Go)
-yarn android:build # native build on Android emulator/device (requires Android Studio)
+yarn ios           # build & run on iOS Simulator (requires Xcode)
+yarn android       # build & run on Android emulator/device (requires Android Studio)
 
 yarn typecheck     # tsc --noEmit
 yarn test          # jest
 yarn format        # prettier --write .
 ```
 
-`yarn ios` / `yarn android` use Expo Go on the device — fastest dev loop. `yarn ios:build` / `yarn android:build` generate native projects via `expo prebuild` and install a real native binary (with the custom icon, no Expo Go wrapper) — slower first build but what a reviewer would want.
+`yarn ios` / `yarn android` generate the native projects via `expo prebuild` on first run, then build and install a real native binary on the simulator/device — no Expo Go required. First build takes ~2–5 min (cold pod install / Gradle); subsequent runs are fast.
 
 The app loads CNB data on first launch — an internet connection is needed for the initial fetch.
 
