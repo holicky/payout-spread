@@ -61,7 +61,8 @@ export function CurrencyPickerModal({
       <SafeAreaProvider>
         <Safe edges={['top', 'bottom']}>
           <Header>
-            <TopBar>
+            <TitleRow>
+              <Title>Select currency</Title>
               <HapticPressable
                 testID={TEST_IDS.picker.close}
                 onPress={onClose}
@@ -71,8 +72,7 @@ export function CurrencyPickerModal({
               >
                 <CloseIcon>✕</CloseIcon>
               </HapticPressable>
-            </TopBar>
-            <Title>Select currency</Title>
+            </TitleRow>
             <SearchWrap>
               <Feather name="search" size={20} color={colors.textSubtle} />
               <SearchInput
@@ -160,9 +160,12 @@ const Header = styled.View`
   padding: ${spacing.sm}px ${spacing.lg}px ${spacing.md}px;
 `
 
-const TopBar = styled.View`
+const TitleRow = styled.View`
   flex-direction: row;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: ${spacing.sm}px;
+  margin-bottom: ${spacing.lg}px;
 `
 
 const CloseIcon = styled.Text`
@@ -175,11 +178,10 @@ const CloseIcon = styled.Text`
 `
 
 const Title = styled.Text`
+  flex: 1;
   font-size: 28px;
   font-weight: 700;
   color: ${colors.text};
-  margin-top: ${spacing.lg}px;
-  margin-bottom: ${spacing.lg}px;
 `
 
 const SearchWrap = styled.View`
