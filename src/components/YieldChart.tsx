@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Animated } from 'react-native'
+import { Animated, type LayoutChangeEvent } from 'react-native'
 import { LineChart } from 'react-native-gifted-charts'
 import Svg, { Line } from 'react-native-svg'
 import styled from 'styled-components/native'
@@ -23,6 +23,7 @@ type PointerLabelItem = { value?: number; date?: string; label?: string }
 
 const SECTIONS = 5
 const HEADER_HEIGHT = 56
+const LABEL_PAD = 8
 
 export const YieldChart = memo(function YieldChart({
   data,
@@ -106,7 +107,22 @@ export const YieldChart = memo(function YieldChart({
   const maxOffsetTop = ((yMax - dataMax) / totalYRange) * height
   const minOffsetBottom = ((dataMin - yMin) / totalYRange) * height
 
-  const chartWidth = width - 80
+  const [areaWidth, setAreaWidth] = useState(0)
+  const handleAreaLayout = useCallback((event: LayoutChangeEvent) => {
+    setAreaWidth(event.nativeEvent.layout.width)
+  }, [])
+
+  const [maxLabelWidth, setMaxLabelWidth] = useState(0)
+  const [minLabelWidth, setMinLabelWidth] = useState(0)
+  const handleMaxLabelLayout = useCallback((event: LayoutChangeEvent) => {
+    setMaxLabelWidth(event.nativeEvent.layout.width)
+  }, [])
+  const handleMinLabelLayout = useCallback((event: LayoutChangeEvent) => {
+    setMinLabelWidth(event.nativeEvent.layout.width)
+  }, [])
+
+  const labelGutter = Math.max(maxLabelWidth, minLabelWidth) + LABEL_PAD
+  const chartWidth = Math.max(0, (areaWidth || width) - labelGutter)
 
   return (
     <Card>
@@ -123,7 +139,7 @@ export const YieldChart = memo(function YieldChart({
           <HeaderDate>{display.date}</HeaderDate>
         </Header>
 
-        <ChartArea>
+        <ChartArea onLayout={handleAreaLayout}>
           {isLoading ? (
             <Skeleton width="100%" height={height} borderRadius={radii.sm} />
           ) : (
@@ -182,10 +198,14 @@ export const YieldChart = memo(function YieldChart({
                       />
                     </Svg>
                   </DottedLineWrap>
-                  <MaxLabel style={{ top: Math.max(0, maxOffsetTop - 7) }}>
+                  <MaxLabel
+                    onLayout={handleMaxLabelLayout}
+                    style={{ top: Math.max(0, maxOffsetTop - 7) }}
+                  >
                     {formatNumber(dataMax)}
                   </MaxLabel>
                   <MinLabel
+                    onLayout={handleMinLabelLayout}
                     style={{ bottom: Math.max(0, minOffsetBottom - 7) }}
                   >
                     {formatNumber(dataMin)}
