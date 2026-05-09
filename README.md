@@ -45,7 +45,7 @@ yarn test          # jest
 yarn format        # prettier --write .
 ```
 
-`yarn ios` / `yarn android` use Expo Go on the device — fastest dev loop. `yarn ios:build` / `yarn android:build` generate native projects via `expo prebuild` and install a real native binary (with the custom icon, no Expo Go wrapper) — slower first build but what a reviewer would want.
+`yarn ios` / `yarn android` use Expo Go on the device — fastest dev loop. `yarn ios:build` / `yarn android:build` generate native projects via `expo prebuild` and install a real native binary (custom icon, no Expo Go wrapper); slower first build.
 
 The app loads CNB data on first launch — an internet connection is needed for the initial fetch.
 
