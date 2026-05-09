@@ -55,12 +55,12 @@ describe('buildSeries', () => {
     expect(series.every(p => p.value === 7.5)).toBe(true)
   })
 
-  it('uses long-form labels (DD MMM YYYY)', () => {
+  it('uses long-form labels with weekday prefix', () => {
     const series = buildSeries(fixings, 'USD', 'CZK', 1)
     expect(series.map(p => p.label)).toEqual([
-      '05 May 2026',
-      '06 May 2026',
-      '07 May 2026',
+      'Tue, 05 May 2026',
+      'Wed, 06 May 2026',
+      'Thu, 07 May 2026',
     ])
   })
 

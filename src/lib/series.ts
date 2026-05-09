@@ -1,6 +1,6 @@
 import type { CNBDailyFixing } from '../api/cnb/types'
 import { convertCurrency, findRate } from './convert'
-import { formatLongDate } from './format'
+import { formatLongDateWithWeekday } from './format'
 
 export type ChartPoint = {
   value: number
@@ -20,6 +20,6 @@ export function buildSeries(
       source && target && amount != null
         ? convertCurrency(amount, source, target)
         : 0
-    return { value, label: formatLongDate(fixing.date) }
+    return { value, label: formatLongDateWithWeekday(fixing.date) }
   })
 }
