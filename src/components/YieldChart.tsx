@@ -76,12 +76,13 @@ export const YieldChart = memo(function YieldChart({
 
   const [focused, setFocused] = useState<Focused | null>(null)
   const touching = useRef(false)
+  const pendingFocusRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handlePointerLabel = useCallback((items?: PointerLabelItem[]) => {
     const item = items?.[0]
     if (typeof item?.value === 'number') {
       // Deferred because gifted-charts invokes this during render. Gated by
       // `touching` so late callbacks fired after touchend can't re-focus.
-      setTimeout(() => {
+      pendingFocusRef.current = setTimeout(() => {
         if (!touching.current) return
         setFocused({
           value: item.value!,
@@ -90,6 +91,12 @@ export const YieldChart = memo(function YieldChart({
       }, 0)
     }
     return null
+  }, [])
+  useEffect(() => {
+    const cancelPendingFocus = () => {
+      if (pendingFocusRef.current) clearTimeout(pendingFocusRef.current)
+    }
+    return cancelPendingFocus
   }, [])
   const handleTouchStart = useCallback(() => {
     touching.current = true
