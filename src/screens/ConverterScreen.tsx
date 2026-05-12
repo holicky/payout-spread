@@ -7,11 +7,7 @@ import { ConversionForm } from '../components/ConversionForm'
 import { ConversionHistory } from '../components/ConversionHistory'
 import { CtaButton } from '../components/CtaButton'
 import { LastUpdated } from '../components/LastUpdated'
-import {
-  PullScroll,
-  pullRefreshControl,
-  useFocusedKey,
-} from '../components/PullToRefresh'
+import { PullScroll, pullRefreshControl } from '../components/PullToRefresh'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { useHeaderHeight } from '../components/Screen'
 import { StaggerFadeIn } from '../components/StaggerFadeIn'
@@ -47,16 +43,14 @@ function ConverterContent({
 }) {
   const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>()
   const headerHeight = useHeaderHeight()
-  const refreshKey = useFocusedKey()
   const refreshControl = useMemo(
     () =>
       pullRefreshControl({
-        refreshKey,
         headerHeight,
         refreshing: isRefetching,
         onRefresh: refetch,
       }),
-    [refreshKey, headerHeight, isRefetching, refetch],
+    [headerHeight, isRefetching, refetch],
   )
 
   return (

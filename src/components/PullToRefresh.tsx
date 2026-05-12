@@ -1,5 +1,3 @@
-import { useIsFocused } from '@react-navigation/native'
-import { useEffect, useState } from 'react'
 import {
   FlatList,
   Platform,
@@ -48,34 +46,16 @@ export function PullList<T>(props: FlatListProps<T> & HeaderOffset) {
   )
 }
 
-// Forces the RefreshControl to remount the first time the screen becomes
-// focused. Works around an iOS quirk where `tintColor` set on the native
-// UIRefreshControl is silently ignored when the hosting UIScrollView mounts
-// off-screen (every tab except the initially focused one).
-export function useFocusedKey() {
-  const isFocused = useIsFocused()
-  const [seenFocus, setSeenFocus] = useState(isFocused)
-  useEffect(() => {
-    if (isFocused) setSeenFocus(true)
-  }, [isFocused])
-  return seenFocus ? 'focused' : 'pending'
-}
-
-type PullRefreshControlProps = RefreshControlProps & {
-  headerHeight: number
-  refreshKey?: string
-}
+type PullRefreshControlProps = RefreshControlProps & { headerHeight: number }
 
 export function pullRefreshControl({
   headerHeight,
-  refreshKey,
   ...rest
 }: PullRefreshControlProps) {
   return (
     <RefreshControl
-      key={refreshKey}
       {...rest}
-      tintColor="#FFFFFF"
+      tintColor={colors.surface}
       colors={[colors.accent]}
       progressViewOffset={isIOS ? 0 : headerHeight}
     />
