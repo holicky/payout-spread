@@ -7,6 +7,7 @@ import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
+import { StaggerFadeIn } from '../components/StaggerFadeIn'
 import { useHeaderHeight } from '../components/Screen'
 import { useRatesWithCZK } from '../hooks/useRatesWithCZK'
 import { selectRate } from '../lib/select-rate'
@@ -71,8 +72,12 @@ function TodayContent({
   )
 
   const renderRate = useCallback(
-    ({ item }: { item: CurrencyRate }) =>
-      reference ? <RateCard rate={item} reference={reference} /> : null,
+    ({ item, index }: { item: CurrencyRate; index: number }) =>
+      reference ? (
+        <StaggerFadeIn index={index}>
+          <RateCard rate={item} reference={reference} />
+        </StaggerFadeIn>
+      ) : null,
     [reference],
   )
 

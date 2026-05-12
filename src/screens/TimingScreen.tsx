@@ -6,6 +6,7 @@ import { ConversionInsights } from '../components/ConversionInsights'
 import { LastUpdated } from '../components/LastUpdated'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { useHeaderHeight } from '../components/Screen'
+import { StaggerFadeIn } from '../components/StaggerFadeIn'
 import { TEST_IDS } from '../lib/testIds'
 import { screenContent, spacing } from '../theme'
 
@@ -55,7 +56,9 @@ function TimingContent({
         testID={TEST_IDS.common.refreshRates}
       />
       <ConversionForm />
-      <ConversionInsights />
+      <StaggerFadeIn index={0}>
+        <ConversionInsights />
+      </StaggerFadeIn>
     </Scroll>
   )
 }

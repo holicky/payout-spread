@@ -9,6 +9,7 @@ import { CtaButton } from '../components/CtaButton'
 import { LastUpdated } from '../components/LastUpdated'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { useHeaderHeight } from '../components/Screen'
+import { StaggerFadeIn } from '../components/StaggerFadeIn'
 import { TEST_IDS } from '../lib/testIds'
 import type { RootTabParamList } from '../navigation/RootTabs'
 import { screenContent, spacing } from '../theme'
@@ -60,15 +61,21 @@ function ConverterContent({
         isRefreshing={isFetching}
         testID={TEST_IDS.common.refreshRates}
       />
-      <ConversionForm />
-      <CtaWrap>
-        <CtaButton
-          testID={TEST_IDS.converter.timingCta}
-          label="Check best day to convert"
-          onPress={() => navigation.navigate('Timing')}
-        />
-      </CtaWrap>
-      <ConversionHistory />
+      <StaggerFadeIn index={0}>
+        <ConversionForm />
+      </StaggerFadeIn>
+      <StaggerFadeIn index={1}>
+        <CtaWrap>
+          <CtaButton
+            testID={TEST_IDS.converter.timingCta}
+            label="Check best day to convert"
+            onPress={() => navigation.navigate('Timing')}
+          />
+        </CtaWrap>
+      </StaggerFadeIn>
+      <StaggerFadeIn index={2}>
+        <ConversionHistory />
+      </StaggerFadeIn>
     </Scroll>
   )
 }
