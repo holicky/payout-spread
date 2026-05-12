@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
-import { FlatList, RefreshControl } from 'react-native'
 import styled from 'styled-components/native'
 
 import type { CNBDailyFixing, CurrencyRate } from '../api/cnb/types'
 import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
+import { PullList, pullRefreshControl } from '../components/PullToRefresh'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { StaggerFadeIn } from '../components/StaggerFadeIn'
@@ -23,11 +23,10 @@ export function TodayScreen() {
 
   return (
     <RatesScreenShell testID={TEST_IDS.screen.today} title="Today's Rates">
-      {({ data, dataUpdatedAt, refetch, isFetching, isRefetching }) => (
+      {({ data, dataUpdatedAt, refetch, isRefetching }) => (
         <TodayContent
           data={data}
           dataUpdatedAt={dataUpdatedAt}
-          isFetching={isFetching}
           isRefetching={isRefetching}
           refetch={refetch}
           sourceCode={sourceCode}
@@ -43,7 +42,6 @@ export function TodayScreen() {
 function TodayContent({
   data,
   dataUpdatedAt,
-  isFetching,
   isRefetching,
   refetch,
   sourceCode,
@@ -53,7 +51,6 @@ function TodayContent({
 }: {
   data: CNBDailyFixing
   dataUpdatedAt: number
-  isFetching: boolean
   isRefetching: boolean
   refetch: () => void
   sourceCode: string
@@ -85,17 +82,21 @@ function TodayContent({
     refetch()
   }, [refetch])
 
+  const refreshControl = useMemo(
+    () =>
+      pullRefreshControl({
+        headerHeight,
+        refreshing: isRefetching,
+        onRefresh: handleRefresh,
+      }),
+    [headerHeight, isRefetching, handleRefresh],
+  )
+
   const header = useMemo(() => {
     if (!reference) return null
     return (
       <Header>
-        <LastUpdated
-          date={data.date}
-          updatedAt={dataUpdatedAt}
-          onRefresh={handleRefresh}
-          isRefreshing={isFetching}
-          testID={TEST_IDS.common.refreshRates}
-        />
+        <LastUpdated date={data.date} updatedAt={dataUpdatedAt} />
         <SmallSpacer />
         <FieldLabel>Show rates in</FieldLabel>
         <CurrencyCard
@@ -107,35 +108,26 @@ function TodayContent({
         <BigSpacer />
       </Header>
     )
-  }, [
-    data.date,
-    dataUpdatedAt,
-    handleRefresh,
-    isFetching,
-    reference,
-    setPickerOpen,
-  ])
+  }, [data.date, dataUpdatedAt, reference, setPickerOpen])
 
   if (!reference) return null
 
   return (
     <>
-      <FlatList
+      <PullList<CurrencyRate>
         testID={TEST_IDS.rates.list}
         data={rates}
         keyExtractor={rate => rate.code}
-        contentContainerStyle={{
+        headerHeight={headerHeight}
+        baseContentStyle={{
           ...screenContent,
           padding: spacing.lg,
           paddingBottom: 32,
-          marginTop: headerHeight,
         }}
         renderItem={renderRate}
         ItemSeparatorComponent={Gap}
         initialNumToRender={15}
-        refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
-        }
+        refreshControl={refreshControl}
         ListHeaderComponent={header}
       />
 

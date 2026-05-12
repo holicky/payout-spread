@@ -1,9 +1,9 @@
-import { ScrollView } from 'react-native'
-import styled from 'styled-components/native'
+import { useMemo } from 'react'
 
 import { ConversionForm } from '../components/ConversionForm'
 import { ConversionInsights } from '../components/ConversionInsights'
 import { LastUpdated } from '../components/LastUpdated'
+import { PullScroll, pullRefreshControl } from '../components/PullToRefresh'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { useHeaderHeight } from '../components/Screen'
 import { StaggerFadeIn } from '../components/StaggerFadeIn'
@@ -13,12 +13,12 @@ import { screenContent, spacing } from '../theme'
 export function TimingScreen() {
   return (
     <RatesScreenShell testID={TEST_IDS.screen.timing} title="Conversion Timing">
-      {({ data, dataUpdatedAt, refetch, isFetching }) => (
+      {({ data, dataUpdatedAt, refetch, isRefetching }) => (
         <TimingContent
           date={data.date}
           dataUpdatedAt={dataUpdatedAt}
           refetch={refetch}
-          isFetching={isFetching}
+          isRefetching={isRefetching}
         />
       )}
     </RatesScreenShell>
@@ -29,40 +29,38 @@ function TimingContent({
   date,
   dataUpdatedAt,
   refetch,
-  isFetching,
+  isRefetching,
 }: {
   date: string
   dataUpdatedAt: number
   refetch: () => void
-  isFetching: boolean
+  isRefetching: boolean
 }) {
   const headerHeight = useHeaderHeight()
+  const refreshControl = useMemo(
+    () =>
+      pullRefreshControl({
+        headerHeight,
+        refreshing: isRefetching,
+        onRefresh: refetch,
+      }),
+    [headerHeight, isRefetching, refetch],
+  )
   return (
-    <Scroll
-      contentContainerStyle={{
+    <PullScroll
+      headerHeight={headerHeight}
+      baseContentStyle={{
         ...screenContent,
         padding: spacing.lg,
         paddingBottom: 32,
-        marginTop: headerHeight,
       }}
+      refreshControl={refreshControl}
     >
-      <LastUpdated
-        date={date}
-        updatedAt={dataUpdatedAt}
-        onRefresh={() => {
-          refetch()
-        }}
-        isRefreshing={isFetching}
-        testID={TEST_IDS.common.refreshRates}
-      />
+      <LastUpdated date={date} updatedAt={dataUpdatedAt} />
       <ConversionForm />
       <StaggerFadeIn index={0}>
         <ConversionInsights />
       </StaggerFadeIn>
-    </Scroll>
+    </PullScroll>
   )
 }
-
-const Scroll = styled(ScrollView)`
-  flex: 1;
-`

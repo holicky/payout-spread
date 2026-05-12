@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native'
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
-import { ScrollView } from 'react-native'
+import { useMemo } from 'react'
 import styled from 'styled-components/native'
 
 import { ConversionForm } from '../components/ConversionForm'
 import { ConversionHistory } from '../components/ConversionHistory'
 import { CtaButton } from '../components/CtaButton'
 import { LastUpdated } from '../components/LastUpdated'
+import { PullScroll, pullRefreshControl } from '../components/PullToRefresh'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { useHeaderHeight } from '../components/Screen'
 import { StaggerFadeIn } from '../components/StaggerFadeIn'
@@ -17,12 +18,12 @@ import { screenContent, spacing } from '../theme'
 export function ConverterScreen() {
   return (
     <RatesScreenShell testID={TEST_IDS.screen.converter} title="Converter">
-      {({ data, dataUpdatedAt, refetch, isFetching }) => (
+      {({ data, dataUpdatedAt, refetch, isRefetching }) => (
         <ConverterContent
           date={data.date}
           dataUpdatedAt={dataUpdatedAt}
           refetch={refetch}
-          isFetching={isFetching}
+          isRefetching={isRefetching}
         />
       )}
     </RatesScreenShell>
@@ -33,34 +34,36 @@ function ConverterContent({
   date,
   dataUpdatedAt,
   refetch,
-  isFetching,
+  isRefetching,
 }: {
   date: string
   dataUpdatedAt: number
   refetch: () => void
-  isFetching: boolean
+  isRefetching: boolean
 }) {
   const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>()
   const headerHeight = useHeaderHeight()
+  const refreshControl = useMemo(
+    () =>
+      pullRefreshControl({
+        headerHeight,
+        refreshing: isRefetching,
+        onRefresh: refetch,
+      }),
+    [headerHeight, isRefetching, refetch],
+  )
 
   return (
-    <Scroll
-      contentContainerStyle={{
+    <PullScroll
+      headerHeight={headerHeight}
+      baseContentStyle={{
         ...screenContent,
         padding: spacing.lg,
         paddingBottom: 32,
-        marginTop: headerHeight,
       }}
+      refreshControl={refreshControl}
     >
-      <LastUpdated
-        date={date}
-        updatedAt={dataUpdatedAt}
-        onRefresh={() => {
-          refetch()
-        }}
-        isRefreshing={isFetching}
-        testID={TEST_IDS.common.refreshRates}
-      />
+      <LastUpdated date={date} updatedAt={dataUpdatedAt} />
       <StaggerFadeIn index={0}>
         <ConversionForm />
       </StaggerFadeIn>
@@ -76,13 +79,9 @@ function ConverterContent({
       <StaggerFadeIn index={2}>
         <ConversionHistory />
       </StaggerFadeIn>
-    </Scroll>
+    </PullScroll>
   )
 }
-
-const Scroll = styled(ScrollView)`
-  flex: 1;
-`
 
 const CtaWrap = styled.View`
   margin-top: ${spacing.xl}px;

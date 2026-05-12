@@ -38,7 +38,6 @@ export const TEST_IDS = {
     key: (label: string) => `calculatorKeypad.key.${sanitize(label)}`,
   },
   common: {
-    refreshRates: 'rates.refresh',
     retryRates: 'rates.retry',
     period: (label: string) => `period.${label}`,
   },

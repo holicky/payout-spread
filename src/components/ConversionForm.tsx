@@ -87,7 +87,7 @@ export function ConversionForm() {
           accessibilityLabel="Swap currencies"
           haptic="light"
         >
-          <Ionicons name="swap-vertical" size={20} color={colors.surface} />
+          <Ionicons name="swap-vertical" size={20} color={colors.accent} />
         </SwapButton>
       </SwapRow>
 
@@ -153,7 +153,7 @@ const SwapButton = styled(HapticPressable)`
   width: 40px;
   height: 40px;
   border-radius: ${radii.pill}px;
-  background-color: ${colors.accent};
+  background-color: ${colors.surface};
   align-items: center;
   justify-content: center;
   shadow-color: ${topEdgeShadow.shadowColor};
