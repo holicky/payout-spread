@@ -52,9 +52,8 @@ export function CalculatorKeypad({
       onRequestClose={commitAndClose}
     >
       <Layout>
-        <Pressable
+        <Backdrop
           testID={TEST_IDS.keypad.backdrop}
-          style={{ flex: 1 }}
           onPress={commitAndClose}
           accessibilityRole="button"
           accessibilityLabel="Dismiss keypad"
@@ -174,6 +173,10 @@ export function CalculatorKeypad({
 }
 
 const Layout = styled.View`
+  flex: 1;
+`
+
+const Backdrop = styled(Pressable)`
   flex: 1;
 `
 

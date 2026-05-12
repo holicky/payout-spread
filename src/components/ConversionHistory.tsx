@@ -88,7 +88,7 @@ export function ConversionHistory() {
   }
 
   return (
-    <Wrap testID={TEST_IDS.converter.history}>
+    <View testID={TEST_IDS.converter.history}>
       <Spacer />
       <YieldChart
         data={series}
@@ -100,7 +100,7 @@ export function ConversionHistory() {
       <PeriodSelector selected={days} onChange={setDays} />
       <Gap />
       {isPlaceholderData ? <StatsCardSkeleton /> : <StatsCard items={stats} />}
-    </Wrap>
+    </View>
   )
 }
 
@@ -121,15 +121,13 @@ const resolveSourceAmount = ({
   return convertCurrency(typed, targetRate, sourceRate)
 }
 
-const Wrap = styled.View``
-
 function ChartCardSkeleton() {
   return (
     <ChartCard>
       <Skeleton width={120} height={22} />
       <View style={{ height: 6 }} />
       <Skeleton width={90} height={12} />
-      <View style={{ height: 24 }} />
+      <Spacer />
       <Skeleton width="100%" height={140} borderRadius={radii.sm} />
     </ChartCard>
   )

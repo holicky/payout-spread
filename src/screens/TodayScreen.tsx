@@ -4,7 +4,11 @@ import styled from 'styled-components/native'
 import type { CNBDailyFixing, CurrencyRate } from '../api/cnb/types'
 import { CurrencyCard } from '../components/currency/CurrencyCard'
 import { LastUpdated } from '../components/LastUpdated'
-import { PullList, pullRefreshControl } from '../components/PullToRefresh'
+import {
+  PullList,
+  pullRefreshControl,
+  useFocusedKey,
+} from '../components/PullToRefresh'
 import { RateCard } from '../components/currency/RateCard'
 import { RatesScreenShell } from '../components/RatesScreenShell'
 import { StaggerFadeIn } from '../components/StaggerFadeIn'
@@ -82,20 +86,22 @@ function TodayContent({
     refetch()
   }, [refetch])
 
+  const refreshKey = useFocusedKey()
   const refreshControl = useMemo(
     () =>
       pullRefreshControl({
+        refreshKey,
         headerHeight,
         refreshing: isRefetching,
         onRefresh: handleRefresh,
       }),
-    [headerHeight, isRefetching, handleRefresh],
+    [refreshKey, headerHeight, isRefetching, handleRefresh],
   )
 
   const header = useMemo(() => {
     if (!reference) return null
     return (
-      <Header>
+      <>
         <LastUpdated date={data.date} updatedAt={dataUpdatedAt} />
         <SmallSpacer />
         <FieldLabel>Show rates in</FieldLabel>
@@ -106,7 +112,7 @@ function TodayContent({
           onCurrencyPress={() => setPickerOpen(true)}
         />
         <BigSpacer />
-      </Header>
+      </>
     )
   }, [data.date, dataUpdatedAt, reference, setPickerOpen])
 
@@ -146,8 +152,6 @@ function TodayContent({
     </>
   )
 }
-
-const Header = styled.View``
 
 const SmallSpacer = styled.View`
   height: ${spacing.sm}px;
