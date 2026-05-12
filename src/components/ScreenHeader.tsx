@@ -11,20 +11,20 @@ type Props = {
 export function ScreenHeader({ title }: Props) {
   const insets = useSafeAreaInsets()
   return (
-    <LinearGradient
-      colors={[colors.accentDeep, colors.accent]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <Inner style={{ paddingTop: insets.top + spacing.md }}>
-        <Title>{title}</Title>
-      </Inner>
-    </LinearGradient>
+    <GradientHeader style={{ paddingTop: insets.top + spacing.md }}>
+      <Title>{title}</Title>
+    </GradientHeader>
   )
 }
 
-const Inner = styled.View`
-  padding: ${spacing.md}px ${spacing.lg}px ${spacing.xl}px;
+const GradientHeader = styled(LinearGradient).attrs({
+  colors: [colors.accentDeep, colors.accent] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 0, y: 1 },
+})`
+  padding-left: ${spacing.lg}px;
+  padding-right: ${spacing.lg}px;
+  padding-bottom: ${spacing.xl}px;
 `
 
 const Title = styled.Text`

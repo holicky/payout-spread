@@ -1,11 +1,33 @@
 import { Ionicons } from '@expo/vector-icons'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {
+  createBottomTabNavigator,
+  TransitionSpecs,
+  type BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs'
+import { Dimensions } from 'react-native'
 
 import { TEST_IDS } from '../lib/testIds'
 import { ConverterScreen } from '../screens/ConverterScreen'
 import { TimingScreen } from '../screens/TimingScreen'
 import { TodayScreen } from '../screens/TodayScreen'
 import { colors, topEdgeShadow } from '../theme'
+
+const SCREEN_WIDTH = Dimensions.get('window').width
+
+const slideInterpolator: NonNullable<
+  BottomTabNavigationOptions['sceneStyleInterpolator']
+> = ({ current }) => ({
+  sceneStyle: {
+    transform: [
+      {
+        translateX: current.progress.interpolate({
+          inputRange: [-1, 0, 1],
+          outputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
+        }),
+      },
+    ],
+  },
+})
 
 export type RootTabParamList = {
   Today: undefined
@@ -34,6 +56,8 @@ export function RootTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        sceneStyleInterpolator: slideInterpolator,
+        transitionSpec: TransitionSpecs.ShiftSpec,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
